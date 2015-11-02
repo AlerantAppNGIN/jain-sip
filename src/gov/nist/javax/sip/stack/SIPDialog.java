@@ -122,7 +122,7 @@ import javax.sip.message.Response;
 /*
  * Acknowledgements:
  * 
- * Bugs in this class were reported by Antonis Karydas, Brad Templeton, Jeff Adams, Alex Rootham ,
+ * Bugs in this class were reported by Antonis Karydas, Brad Templeton, Jeff Adams, Alex Rootham,
  * Martin Le Clerk, Christophe Anzille, Andreas Bystrom, Lebing Xie, Jeroen van Bemmel. Hagai Sela
  * reported a bug in updating the route set (on RE-INVITE). Jens Tinfors submitted a bug fix and
  * the .equals method. Jan Schaumloeffel contributed a buf fix ( memory leak was happening when
@@ -3563,7 +3563,15 @@ public class SIPDialog implements javax.sip.Dialog, DialogExt {
                                     logger
                                             .logDebug(
                                                     "RFC 3265 : Not setting dialog to TERMINATED for 489");
-                            } else {
+                            } if(statusCode == 500 ){
+                                //TODO perhaps we should do more things to fix this...
+                            	if (logger
+                                        .isLoggingEnabled(LogWriter.TRACE_DEBUG))
+                                    logger
+                                            .logDebug(
+                                                    "RFC 3265 : Not setting dialog to TERMINATED for 500");
+                            } 
+                            else {
                                 // baranowb: simplest fix to
                                 // https://jain-sip.dev.java.net/issues/show_bug.cgi?id=175
                                 // application is responsible for terminating in
