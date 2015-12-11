@@ -87,7 +87,8 @@ public abstract class SIPTransactionStack implements
      * Connection linger time (seconds) this is the time (in seconds) for which
      * we linger the TCP connection before closing it.
      */
-    public static final int CONNECTION_LINGER_TIME = 8;
+    // Moved to non constant as part of https://github.com/Mobicents/jain-sip/issues/40
+    private static int connectionLingerTimer = 8;
 
     /*
      * Dialog Early state timeout duration.
@@ -3345,5 +3346,19 @@ public abstract class SIPTransactionStack implements
 
 	public void setSslRenegotiationEnabled(boolean sslRenegotiationEnabled) {
 		this.sslRenegotiationEnabled = sslRenegotiationEnabled;
+	}
+
+	/**
+	 * @return the connectionLingerTimer
+	 */
+	public int getConnectionLingerTimer() {
+		return connectionLingerTimer;
+	}
+
+	/**
+	 * @param connectionLingerTimer the connectionLingerTimer to set
+	 */
+	public void setConnectionLingerTimer(int connectionLingerTimer) {
+		SIPTransactionStack.connectionLingerTimer = connectionLingerTimer;
 	}
 }

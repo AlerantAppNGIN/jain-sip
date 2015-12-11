@@ -1356,6 +1356,10 @@ public class SipStackImpl extends SIPTransactionStack implements
 						.toString());
 		bufferSizeInteger = new Integer(bufferSize).intValue();
 		super.setSendUdpBufferSize(bufferSizeInteger);
+		// Contribution for https://github.com/Mobicents/jain-sip/issues/40
+		super.setConnectionLingerTimer(Integer.parseInt(configurationProperties.getProperty(
+				"gov.nist.javax.sip.LINGER_TIMER", "8")));
+
 
 		super.isBackToBackUserAgent = Boolean
 				.parseBoolean(configurationProperties.getProperty(
