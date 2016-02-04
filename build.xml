@@ -984,11 +984,11 @@ c:/jakarta-ant/bin/ant all
 	<target name="addrepo" description="Add build results to maven local repository for another projects to use">
 	    <exec dir="${basedir}" executable="mvn.bat">
 		<arg value="install:install-file"/>
-		<arg line="-Dfile=jain-sip-api-1.2.jar -DgroupId=javax.sip -DartifactId=jain-sip -Dversion=1.2.0-appngin-1 -Dpackaging=jar" />
+		<arg line="-Dfile=jain-sip-api-1.2.jar -DgroupId=javax.sip -DartifactId=jain-sip-api -Dversion=1.2.0-appngin-1 -Dpackaging=jar" />
 	    </exec>
 	    <exec dir="${basedir}" executable="mvn.bat">
 		<arg value="install:install-file"/>
-		<arg line="-Dfile=jain-sip-api-1.2-src.jar -DgroupId=javax.sip -DartifactId=jain-sip -Dversion=1.2.0-appngin-1-sources -Dpackaging=jar" />
+		<arg line="-Dfile=jain-sip-api-1.2-src.jar -DgroupId=javax.sip -DartifactId=jain-sip-api -Dversion=1.2.0-appngin-1-sources -Dpackaging=jar" />
 	    </exec>
 	    <exec dir="${basedir}" executable="mvn.bat">
 		<arg value="install:install-file"/>
