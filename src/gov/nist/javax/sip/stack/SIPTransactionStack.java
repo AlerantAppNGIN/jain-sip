@@ -363,6 +363,10 @@ public abstract class SIPTransactionStack implements
 
     private boolean deliverTerminatedEventForAck = false;
 
+    protected boolean patchWebSocketHeaders = false;
+    
+    protected boolean patchRport = false;
+    
     protected ClientAuthType clientAuth = ClientAuthType.Default;
     
     // ThreadPool when parsed SIP messages are processed. Affects the case when many TCP calls use single socket.
@@ -389,7 +393,7 @@ public abstract class SIPTransactionStack implements
     
     public SIPEventInterceptor sipEventInterceptor;
 
-    protected static Executor selfRoutingThreadpoolExecutor;
+    protected static ScheduledExecutorService selfRoutingThreadpoolExecutor;
 
     private int threadPriority = Thread.MAX_PRIORITY;
 
@@ -414,29 +418,13 @@ public abstract class SIPTransactionStack implements
     
     protected SocketTimeoutAuditor socketTimeoutAuditor = null;
 
-    private static class SameThreadExecutor implements Executor {
-
-        public void execute(Runnable command) {
-            command.run(); // Just run the command is the same thread
-        }
-
-    }
-
-    public Executor getSelfRoutingThreadpoolExecutor() {
+    
+    public ScheduledExecutorService getSelfRoutingThreadpoolExecutor() {
         if(selfRoutingThreadpoolExecutor == null) {
             if(this.threadPoolSize<=0) {
-                selfRoutingThreadpoolExecutor = new SameThreadExecutor();
+                selfRoutingThreadpoolExecutor = new ThreadAffinityExecutor(16);
             } else {
-                selfRoutingThreadpoolExecutor = Executors.newFixedThreadPool(this.threadPoolSize, new ThreadFactory() {
-                    private int threadCount = 0;
-
-                    public Thread newThread(Runnable pRunnable) {
-                    	Thread thread = new Thread(pRunnable, String.format("%s-%d",
-                                        "SelfRoutingThread", threadCount++));
-                    	thread.setPriority(threadPriority);
-                    	return thread;
-                    }
-                });
+                selfRoutingThreadpoolExecutor = new ThreadAffinityExecutor(this.threadPoolSize);
             }
         }
         return selfRoutingThreadpoolExecutor;
@@ -465,6 +453,11 @@ public abstract class SIPTransactionStack implements
         public PingTimer(ThreadAuditor.ThreadHandle a_oThreadHandle) {
             threadHandle = a_oThreadHandle;
         }
+        
+        @Override
+        public Object getThreadHash() {
+            return null;
+        }         
 
         public void runTask() {
             // Check if we still have a timer (it may be null after shutdown)
@@ -496,6 +489,11 @@ public abstract class SIPTransactionStack implements
         public RemoveForkedTransactionTimerTask(String forkId) {
             this.forkId = forkId;
         }
+        
+        @Override
+        public Object getThreadHash() {
+            return null;
+        }         
 
         @Override
         public void runTask() {
@@ -1040,6 +1038,18 @@ public abstract class SIPTransactionStack implements
      * "active" or "pending", it creates a new subscription and a new dialog
      * (unless they have already been created by a matching response, as
      * described above).
+     * 
+     * Due to different app chaining scenarios (ie B2BUA to Proxy), the RFC matching
+     * is not enough alone. It maybe several transactions matches the defined
+     * criteria. For that reason, some complementary conditions are included. These
+     * conditions will be used as a way to prioritize two matched transactions. In case,
+     * just one transaction matches the RFC criteria, these additional conditions
+     * will be ignored, and the regular logic will be used. Additional conditions are
+     * to match notMsg.reqURI with ct.origReq.contact, and prefer transactions with dialogs.
+     * See https://github.com/RestComm/jain-sip/issues/60 for more info.
+     * Complementary are also used to stop the searching, and return the matched tx. This
+     * is because we are iterating the whole client transaction table, which may be
+     * big effort. 
      *
      * @param notifyMessage
      * @return -- the matching ClientTransaction with semaphore aquired or null
@@ -1049,10 +1059,15 @@ public abstract class SIPTransactionStack implements
             SIPRequest notifyMessage, ListeningPointImpl listeningPoint) {
         SIPClientTransaction retval = null;
         try {
+            //https://github.com/RestComm/jain-sip/issues/60
+            //take into account dialogId, so we can try and match the proper TX
+            String dialogId = notifyMessage.getDialogId(true);
             Iterator it = clientTransactionTable.values().iterator();
-            if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG))
+            if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
                 logger.logDebug("ct table size = "
                         + clientTransactionTable.size());
+            }
+
             String thisToTag = notifyMessage.getTo().getTag();
             if (thisToTag == null) {
                 return retval;
@@ -1083,6 +1098,12 @@ public abstract class SIPTransactionStack implements
                     logger.logDebug("thisToTag = " + thisToTag);
                     logger.logDebug("hisEvent = " + hisEvent);
                     logger.logDebug("eventHdr " + eventHdr);
+                    logger.logDebug("ct.req.contact = " + ct.getOriginalRequestContact());
+                    if (ct.getOriginalRequest() != null)
+                    	logger.logDebug("ct.req.reqURI = " + ct.getOriginalRequest().getRequestURI());
+                    logger.logDebug("msg.Contact= " + notifyMessage.getContactHeader());
+                    logger.logDebug("msg.reqURI " + notifyMessage.getRequestURI());
+                    
                 }
 
                 if (  fromTag.equalsIgnoreCase(thisToTag)
@@ -1093,8 +1114,21 @@ public abstract class SIPTransactionStack implements
                     if (!this.isDeliverUnsolicitedNotify() ) {
                         ct.acquireSem();
                     }
-                    retval = ct;
-                    return ct;
+                    if (retval == null) {
+                        //take first matching tx, just in case
+                        retval = ct;                    	
+                    }
+                    //https://github.com/RestComm/jain-sip/issues/60
+                    //Now check complementary conditions, to override selected ct, and break
+                   if (notifyMessage.getRequestURI().equals(ct.getOriginalRequest().getContactHeader().getAddress().getURI()) &&
+                		   (ct.getDefaultDialog() != null || ct.getDialog(dialogId) != null)){
+                       if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
+                           logger.logDebug("Tx compl conditions met." + ct);
+                       }
+                       retval = ct;
+                       break;
+                   }
+
                 }
             }
 
@@ -3016,7 +3050,7 @@ public abstract class SIPTransactionStack implements
     public void setDeliverDialogTerminatedEventForNullDialog() {
         this.isDialogTerminatedEventDeliveredForNullDialog = true;
     }
-
+    
     public void addForkedClientTransaction(
             SIPClientTransaction clientTransaction) {
         String forkId = ((SIPRequest)clientTransaction.getRequest()).getForkId();
@@ -3071,6 +3105,22 @@ public abstract class SIPTransactionStack implements
        return this.minKeepAliveInterval;
     }
 
+    public void setPatchWebSocketHeaders(Boolean patchWebSocketHeaders) {
+    	this.patchWebSocketHeaders = patchWebSocketHeaders;
+    }
+
+    public boolean isPatchWebSocketHeaders() {
+        return patchWebSocketHeaders;
+    }
+
+    public void setPatchRport(Boolean patchRport) {
+    	this.patchRport = patchRport;
+    }
+
+    public boolean isPatchRport() {
+        return patchRport;
+    }
+    
     /**
      * @param maxForkTime
      *            the maxForkTime to set

@@ -37,6 +37,7 @@ import gov.nist.core.ServerLogger;
 import gov.nist.core.StackLogger;
 import gov.nist.core.ThreadAuditor;
 import gov.nist.javax.sip.SIPConstants;
+import gov.nist.javax.sip.ThreadAffinityTask;
 import gov.nist.javax.sip.header.CSeq;
 import gov.nist.javax.sip.header.CallID;
 import gov.nist.javax.sip.header.ContentLength;
@@ -98,7 +99,7 @@ import javax.sip.message.Response;
  */
 public class UDPMessageChannel extends MessageChannel implements
         ParseExceptionListener, Runnable, RawMessageChannel {
-    private static StackLogger logger = CommonLogger.getLogger(UDPMessageChannel.class);
+    private static final StackLogger logger = CommonLogger.getLogger(UDPMessageChannel.class);
     /**
      * SIP Stack structure for this channel.
      */
@@ -154,6 +155,11 @@ public class UDPMessageChannel extends MessageChannel implements
             this.ipAddress = ipAddress;
             this.port = port;
         }
+        
+        @Override
+        public Object getThreadHash() {
+            return null;
+        }         
 
         public void runTask() {
             pingBackRecord.remove(ipAddress + ":" + port);
@@ -485,8 +491,18 @@ public class UDPMessageChannel extends MessageChannel implements
                 this.peerAddress = packet.getAddress();
                 // Check to see if the received parameter matches
                 // the peer address and tag it appropriately.
-
+                
                 boolean hasRPort = topMostVia.hasParameter(Via.RPORT);
+           if(sipStack.isPatchRport())
+                if(!hasRPort && topMostVia.getPort() != peerPacketSourcePort) {
+                	// https://github.com/RestComm/jain-sip/issues/79
+                	if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
+                        logger.logDebug(
+                                "setting rport since viaPort " + topMostVia.getPort() + " different than peerPacketSourcePort " 
+                                + peerPacketSourcePort + " so that the response can be routed back");
+                    }
+                	hasRPort = true;
+                }
                 if (hasRPort
                         || !hop.getHost().equals(
                                 this.peerAddress.getHostAddress())) {
@@ -593,6 +609,14 @@ public class UDPMessageChannel extends MessageChannel implements
                             "Dropping Badly formatted response message >>> "
                                     + sipResponse);
                 return;
+            }
+            if (logger.isLoggingEnabled(
+                    ServerLogger.TRACE_MESSAGES)) {
+
+                this.sipStack.serverLogger.logMessage(sipResponse, this
+                        .getPeerHostPort().toString(), this.getHost() + ":"
+                        + this.myPort, false, receptionTime);
+
             }
             ServerResponseInterface sipServerResponse = sipStack
                     .newSIPServerResponse(sipResponse, this);
@@ -717,7 +741,7 @@ public class UDPMessageChannel extends MessageChannel implements
                     if (messageChannel instanceof RawMessageChannel) {
 
                         final RawMessageChannel channel = (RawMessageChannel) messageChannel;
-                        Runnable processMessageTask = new Runnable() {
+                        ThreadAffinityTask processMessageTask = new ThreadAffinityTask() {
                             public void run() {
                                 try {
                                     ((RawMessageChannel) channel)
@@ -732,6 +756,10 @@ public class UDPMessageChannel extends MessageChannel implements
                                                         ex);
                                     }
                                 }
+                            }
+                            
+                            public Object getThreadHash() {
+                                return sipMessage.getCallId().getCallId();
                             }
                         };
                         getSIPStack().getSelfRoutingThreadpoolExecutor()

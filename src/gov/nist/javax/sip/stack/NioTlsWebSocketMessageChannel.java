@@ -28,6 +28,7 @@ package gov.nist.javax.sip.stack;
 import gov.nist.core.CommonLogger;
 import gov.nist.core.LogLevels;
 import gov.nist.core.LogWriter;
+import gov.nist.core.ServerLogger;
 import gov.nist.core.StackLogger;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.message.SIPMessage;
@@ -57,21 +58,21 @@ public class NioTlsWebSocketMessageChannel extends NioWebSocketMessageChannel im
 	private int appBufferMax;
 	private int netBufferMax;
 
-	public static NioTlsWebSocketMessageChannel create(
+	public static NioTlsWebSocketMessageChannel create(SIPTransactionStack stack,
 			NioTlsWebSocketMessageProcessor nioTcpMessageProcessor,
 			SocketChannel socketChannel) throws IOException {
 		NioTlsWebSocketMessageChannel retval = (NioTlsWebSocketMessageChannel) channelMap.get(socketChannel);
 		if (retval == null) {
-			retval = new NioTlsWebSocketMessageChannel(nioTcpMessageProcessor,
+			retval = new NioTlsWebSocketMessageChannel(stack, nioTcpMessageProcessor,
 					socketChannel);
 			channelMap.put(socketChannel, retval);
 		}
 		return retval;
 	}
 	
-	protected NioTlsWebSocketMessageChannel(NioTcpMessageProcessor nioTcpMessageProcessor,
+	protected NioTlsWebSocketMessageChannel(SIPTransactionStack stack, NioTcpMessageProcessor nioTcpMessageProcessor,
 			SocketChannel socketChannel) throws IOException {
-		super(nioTcpMessageProcessor, socketChannel);
+		super(stack, nioTcpMessageProcessor, socketChannel);
 
 		messageProcessor = nioTcpMessageProcessor;
 		myClientInputStream = socketChannel.socket().getInputStream();
@@ -123,17 +124,56 @@ public class NioTlsWebSocketMessageChannel extends NioWebSocketMessageChannel im
 	protected void sendMessage(final byte[] msg, final boolean isClient) throws IOException {
 		checkSocketState();
 
-		ByteBuffer b = ByteBuffer.wrap(NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(msg, client));
-		try {
-			sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
+		if(client && readingHttp && httpClientRequestSent.compareAndSet(false, true)) {
+			final String http = "null null HTTP/1.1\r\n" + 
+					"Host: null\r\n" + 
+					"Upgrade: websocket\r\n" + 
+					"Connection: Upgrade\r\n" + 
+					"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n" + 
+					"Sec-WebSocket-Protocol: sip\r\n" + 
+					"Sec-WebSocket-Version: 13\r\n\r\n";
+			
+			final ByteBuffer b1 = ByteBuffer.wrap(NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(msg, client));						
+			ByteBuffer b = ByteBuffer.wrap(http.getBytes());
+			try {
+				sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
 
-				@Override
-				public void doSend(byte[] bytes) throws IOException {
-					NioTlsWebSocketMessageChannel.super.sendNonWebSocketMessage(bytes, isClient);
-				}
-			});
-		} catch (Exception e) {
-			throw new IOException("Can't send message", e);
+					@Override
+					public void doSend(byte[] bytes) throws IOException {
+						NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
+								NioTlsWebSocketMessageChannel.super.peerAddress, NioTlsWebSocketMessageChannel.super.peerPort, false);
+						
+						final Boolean sent=false;
+						
+						try {
+							sslStateMachine.wrap(b1, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
+							
+								@Override
+								public void doSend(byte[] bytes) throws IOException {
+									NioTlsWebSocketMessageChannel.super.sendNonWebSocketMessage(bytes, isClient);									
+								}
+							});
+						} catch (Exception e) {
+							throw new IOException("Can't send message", e);
+						}
+					}
+				});
+			} catch (IOException e) {
+				throw e;
+			}
+		} else {
+			ByteBuffer b = ByteBuffer.wrap(NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(msg, client));
+			try {
+				sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
+	
+					@Override
+					public void doSend(byte[] bytes) throws IOException {						
+						NioTlsWebSocketMessageChannel.super.sendNonWebSocketMessage(bytes, isClient);
+					}
+				});
+			} catch (Exception e) {
+				throw new IOException("Can't send message", e);
+			}
 		}
 	}
 	
@@ -148,6 +188,7 @@ public class NioTlsWebSocketMessageChannel extends NioWebSocketMessageChannel im
 		if(this.socketChannel != null && this.socketChannel.isConnected() && this.socketChannel.isOpen()) {
 			nioHandler.putSocket(NIOHandler.makeKey(this.peerAddress, this.peerPort), this.socketChannel);
 		}
+		
 		super.sendNonWebSocketMessage(msg, false);
 		//super.sendMessage(msg, this.peerAddress, this.peerPort, true);
 	}
@@ -156,19 +197,59 @@ public class NioTlsWebSocketMessageChannel extends NioWebSocketMessageChannel im
 			final int receiverPort, final boolean retry) throws IOException {
 		checkSocketState();
 		
-		ByteBuffer b = ByteBuffer.wrap(NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(message, client));
-		try {
-			sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
-				
-				@Override
-				public void doSend(byte[] bytes) throws IOException {
-					NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
-							receiverAddress, receiverPort, retry);
+		if(client && readingHttp && httpClientRequestSent.compareAndSet(false, true)) {
+			final String http = "null null HTTP/1.1\r\n" + 
+					"Host: null\r\n" + 
+					"Upgrade: websocket\r\n" + 
+					"Connection: Upgrade\r\n" + 
+					"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n" + 
+					"Sec-WebSocket-Protocol: sip\r\n" + 
+					"Sec-WebSocket-Version: 13\r\n\r\n";
+			
+			
+			final ByteBuffer b1 = ByteBuffer.wrap(NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(message, client));
+			ByteBuffer b = ByteBuffer.wrap(http.getBytes());
+			try {
+				sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
+
+					@Override
+					public void doSend(byte[] bytes) throws IOException {
+						NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
+								receiverAddress, receiverPort, false);
+
+						try {
+							sslStateMachine.wrap(b1, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
+								
+								@Override
+								public void doSend(byte[] bytes) throws IOException {
+									NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
+											receiverAddress, receiverPort, retry);
+									
+								}
+							});
+						} catch (IOException e) {
+							throw e;
+						}
+					}
+				});
+			} catch (IOException e) {
+				throw e;
+			}
+		} else {
+			ByteBuffer b = ByteBuffer.wrap(NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(message, client));
+			try {
+				sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
 					
-				}
-			});
-		} catch (IOException e) {
-			throw e;
+					@Override
+					public void doSend(byte[] bytes) throws IOException {
+						NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
+								receiverAddress, receiverPort, retry);
+						
+					}
+				});
+			} catch (IOException e) {
+				throw e;
+			}
 		}
 	}
 	
@@ -176,58 +257,12 @@ public class NioTlsWebSocketMessageChannel extends NioWebSocketMessageChannel im
 	public void sendMessage(final SIPMessage sipMessage, final InetAddress receiverAddress, final int receiverPort)
             throws IOException {
 		
-		if(sipMessage instanceof SIPRequest && client && !httpClientRequestSent) {
-				httpClientRequestSent = true;
-				SIPRequest request = (SIPRequest) sipMessage;
-				SipURI requestUri = (SipURI) request.getRequestURI();
-				this.httpHostHeader = requestUri.getHeader("Host");
-				this.httpLocation = requestUri.getHeader("Location");
-				this.httpMethod = requestUri.getMethodParam();
-				final String http = this.httpMethod + " " + this.httpLocation + " HTTP/1.1\r\n" + 
-						"Host: " + this.httpHostHeader + "\r\n" + 
-						"Upgrade: websocket\r\n" + 
-						"Connection: Upgrade\r\n" + 
-						"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n" + 
-						"Sec-WebSocket-Protocol: sip\r\n" + 
-						"Sec-WebSocket-Version: 13\r\n\r\n";
-				
-				
-				ByteBuffer b = ByteBuffer.wrap(http.getBytes());
-				try {
-					sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
-
-						@Override
-						public void doSend(byte[] bytes) throws IOException {
-							NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
-									receiverAddress, receiverPort, false);
-
-							byte[] wsM = sipMessage.toString().getBytes();
-							byte[] wsMessage = NioWebSocketMessageChannel.wrapBufferIntoWebSocketFrame(wsM, client);
-							ByteBuffer b = ByteBuffer.wrap(wsMessage);
-							try {
-								sslStateMachine.wrap(b, ByteBufferFactory.getInstance().allocateDirect(netBufferMax), new MessageSendCallback() {
-
-									@Override
-									public void doSend(byte[] bytes) throws IOException {
-										NioTlsWebSocketMessageChannel.super.sendTCPMessage(bytes,
-												receiverAddress, receiverPort, false);
-									}
-								});
-							} catch (IOException e) {
-								throw e;
-							}
-						}
-					});
-				} catch (IOException e) {
-					throw e;
-				}
-
-
-		} else {
-			// https://java.net/jira/browse/JSIP-497 fix transport for WSS
-			final byte[] msg = sipMessage.encodeAsBytes(this.getTransport());
-			sendMessage(msg, this.client);
-		}
+		// https://java.net/jira/browse/JSIP-497 fix transport for WSS
+		final byte[] msg = sipMessage.encodeAsBytes(this.getTransport());
+		sendMessage(msg, receiverAddress, receiverPort, this.client);
+		
+		if (logger.isLoggingEnabled(ServerLogger.TRACE_MESSAGES))
+			logMessage(sipMessage, receiverAddress, receiverPort, System.currentTimeMillis());
     }
 
 	public void sendHttpMessage(final byte message[], final InetAddress receiverAddress,

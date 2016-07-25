@@ -35,6 +35,7 @@ import gov.nist.javax.sip.IOExceptionEventExt.Reason;
 import gov.nist.javax.sip.SipListenerExt;
 import gov.nist.javax.sip.SipProviderImpl;
 import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.ThreadAffinityTask;
 import gov.nist.javax.sip.header.RetryAfter;
 import gov.nist.javax.sip.header.Via;
 import gov.nist.javax.sip.header.ViaList;
@@ -180,7 +181,7 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
                     && messageProcessor.getPort() == this.getPeerPort()
                     && messageProcessor.getTransport().equalsIgnoreCase(
                             this.getPeerProtocol())) {
-                Runnable processMessageTask = new Runnable() {
+                ThreadAffinityTask processMessageTask = new ThreadAffinityTask() {
 
                     public void run() {
                         try {
@@ -194,6 +195,11 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
                                                 ex);
                             }
                         }
+                    }
+
+                    @Override
+                    public Object getThreadHash() {
+                        return sipMessage.getCallId().getCallId();
                     }
                 };
                 getSIPStack().getSelfRoutingThreadpoolExecutor().execute(
@@ -345,7 +351,18 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
                     // InetAddress sentByAddress =
                     // InetAddress.getByName(hop.getHost());
                     // JvB: if sender added 'rport', must always set received
-                    if (v.hasParameter(Via.RPORT)
+                	boolean hasRPort = v.hasParameter(Via.RPORT);
+                	if(sipStack.isPatchRport())
+						if (!hasRPort && v.getPort() != peerPort) {
+							// https://github.com/RestComm/jain-sip/issues/79
+							if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
+								logger.logDebug(
+								"setting rport since viaPort " + v.getPort() + " different than peerPacketSourcePort "
+										+ peerPort + " so that the response can be routed back");
+							}
+							hasRPort = true;
+						}
+                    if (hasRPort
                             || !hop.getHost().equals(
                                     this.peerAddress.getHostAddress())) {
                         v.setParameter(Via.RECEIVED, this.peerAddress
@@ -821,7 +838,11 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
         }
     }
     class KeepAliveTimeoutTimerTask extends SIPStackTimerTask {
-
+        @Override
+        public Object getThreadHash() {
+            return null;
+        } 
+        
         public void runTask() {
             if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
                 logger.logDebug(
