@@ -922,7 +922,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                 // Provided we have set the banch id for this we set the BID for
                 // the
                 // outgoing via.
-                if (originalRequestBranch != null)
+            	if (this.lastResponse == null)
                     transactionResponse.getTopmostVia().setBranch(this.getBranch());
                 else
                     transactionResponse.getTopmostVia().removeParameter(ParameterNames.BRANCH);
@@ -935,7 +935,6 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                logger.logError("UnexpectedException",ex);
                throw new IOException("Unexpected exception");
             }
-
             // Method of the response does not match the request used to
             // create the transaction - transaction state does not change.
             if (!transactionResponse.getCSeq().getMethod().equals(
@@ -1199,12 +1198,12 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
      */
     @Override
     public void resendLastResponseAsBytes() throws IOException {
-
-        if(lastResponse != null) {
+        final SIPResponse lastRestponseCopy = this.lastResponse;
+        if(lastRestponseCopy != null) {
             if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
-                logger.logDebug("resend last response " + lastResponse);
+                logger.logDebug("resend last response " + lastRestponseCopy);
             }
-            sendMessage(lastResponse);
+            sendMessage(lastRestponseCopy);
         } else if (lastResponseAsBytes != null) {
             // Send the message to the client
 //                if(!checkStateTimers(lastResponseStatusCode)) {
