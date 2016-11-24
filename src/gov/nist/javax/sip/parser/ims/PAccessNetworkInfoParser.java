@@ -32,14 +32,13 @@ package gov.nist.javax.sip.parser.ims;
 
 import java.text.ParseException;
 
+import gov.nist.core.NameValue;
+import gov.nist.core.Token;
+import gov.nist.javax.sip.header.SIPHeader;
 import gov.nist.javax.sip.header.ims.PAccessNetworkInfo;
 import gov.nist.javax.sip.header.ims.SIPHeaderNamesIms;
-import gov.nist.core.Token;
-import gov.nist.core.NameValue;
-import gov.nist.javax.sip.header.SIPHeader;
 import gov.nist.javax.sip.parser.HeaderParser;
 import gov.nist.javax.sip.parser.Lexer;
-import gov.nist.javax.sip.parser.ParametersParser;
 import gov.nist.javax.sip.parser.TokenTypes;
 
 
@@ -104,8 +103,15 @@ public class PAccessNetworkInfoParser
                 this.lexer.match(';');
                 this.lexer.SPorHT();
 
-                NameValue nv = super.nameValue('=');
-                accessNetworkInfo.setParameter(nv);
+                if (lexer.lookAhead(0) == '\"') {
+                    //quoted-string starts. For compatibility reason quoted string
+                    //is interpreted as extension (complying RFC7315 and before)
+                    String quotedString = lexer.quotedString();
+                    accessNetworkInfo.setExtensionAccessInfo("\"" + quotedString + "\"");
+                } else {
+                    NameValue nv = super.nameValue('=');
+                    accessNetworkInfo.setParameter(nv);
+                }
                 this.lexer.SPorHT();
             }
             this.lexer.SPorHT();
