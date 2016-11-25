@@ -922,7 +922,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                 // Provided we have set the banch id for this we set the BID for
                 // the
                 // outgoing via.
-            	if (this.lastResponse == null)
+                if (originalRequestBranch != null)
                     transactionResponse.getTopmostVia().setBranch(this.getBranch());
                 else
                     transactionResponse.getTopmostVia().removeParameter(ParameterNames.BRANCH);
