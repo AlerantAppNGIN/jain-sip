@@ -809,7 +809,9 @@ public class URLParser extends Parser {
         // quick test for sips parsing
         String[] test = { "sip:alice@example.com",
                     "sips:alice@examples.com" ,
-                    "sip:3Zqkv5dajqaaas0tCjCxT0xH2ZEuEMsFl0xoasip%3A%2B3519116786244%40siplab.domain.com@213.0.115.163:7070"};
+                    "sip:3Zqkv5dajqaaas0tCjCxT0xH2ZEuEMsFl0xoasip%3A%2B3519116786244%40siplab.domain.com@213.0.115.163:7070",
+                    "tel:+36713156222",
+                    "tel:+36813!.*!"};
 
         for ( int i = 0; i < test.length; i++)
         {

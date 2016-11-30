@@ -27,6 +27,7 @@ package test.unit.gov.nist.javax.sip.parser.ims;
 import java.text.ParseException;
 import javax.sip.address.AddressFactory;
 import gov.nist.javax.sip.address.AddressFactoryImpl;
+import gov.nist.javax.sip.address.GenericURI;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.ims.PProfileKeyHeader;
 import gov.nist.javax.sip.parser.ims.PProfileKeyParser;
@@ -48,7 +49,8 @@ public class PProfileKeyParserTest extends ParserTestCase{
 
         String p_prof_key[] = {"P-Profile-Key: <sip:chatroom-12@rancore.com>\n",
                                "P-Profile-Key: <sip:chatroom-!.*!@rancore.com>\n",
-                               "P-Profile-Key: <sip:chatroom-19A@rancore.com>\n"};
+                               "P-Profile-Key: <sip:chatroom-19A@rancore.com>\n",
+                               "P-Profile-Key:  <tel:+36813!.*!>\n"};
 
         super.testParser(PProfileKeyParser.class, p_prof_key);
 
@@ -66,6 +68,11 @@ public class PProfileKeyParserTest extends ParserTestCase{
                          addFactory.createSipURI("aayushzChatRoom-19", "rancoremumbai.com")));
 
             System.out.println("The newly encoded header is---> "+ppkey.toString());
+
+            PProfileKeyHeader ppkey2 = himpl.createPProfileKeyHeader
+                    (addFactory.createAddress(new GenericURI ("tel:+36813!.*!")));
+
+                System.out.println("The newly encoded header is---> "+ppkey2.toString());
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
