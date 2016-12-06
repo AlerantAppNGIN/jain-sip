@@ -1,3 +1,7 @@
+# ignore generated artifacts
+/jain-*.jar
+/TIMESTAMP
+/version.txt
 # ignore .svn metadata files
 .svn
 # ignore Maven generated target folders
