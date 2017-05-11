@@ -59,7 +59,7 @@ public class CSeqParser extends HeaderParser {
             String number = this.lexer.number();
             c.setSeqNumber(Long.parseLong(number));
             this.lexer.SPorHT();
-            String m = SIPRequest.getCannonicalName( method() ).intern();
+            String m = SIPRequest.getCannonicalName( method() );
             c.setMethod(m);
             this.lexer.SPorHT();
             this.lexer.match('\n');
