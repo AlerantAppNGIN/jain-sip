@@ -106,7 +106,7 @@ public class Privacy
     public void setPrivacy(String privacy) throws ParseException
     {
 
-        if (privacy == null || privacy == "")
+        if (privacy == null || privacy.equals(""))
             throw new NullPointerException(
                 "JAIN-SIP Exception, "
                     + " Privacy, setPrivacy(), privacy value is null or empty");

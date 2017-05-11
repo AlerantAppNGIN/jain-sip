@@ -1437,7 +1437,7 @@ public class HeaderFactoryImpl implements HeaderFactory , HeaderFactoryExt {
     public PMediaAuthorizationHeader createPMediaAuthorizationHeader(String token)
         throws InvalidArgumentException, ParseException
     {
-        if (token == null || token == "")
+        if (token == null || token.equals(""))
             throw new InvalidArgumentException("The Media-Authorization-Token parameter is null or empty");
 
 
