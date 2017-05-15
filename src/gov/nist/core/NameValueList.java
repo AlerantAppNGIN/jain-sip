@@ -183,7 +183,7 @@ public class NameValueList implements Serializable, Cloneable, Map<String,NameVa
      * Do a lookup on a given name and return value associated with it.
      */
     public Object getValue(String name, boolean stripQuotes) {
-        NameValue nv = this.getNameValue(name.toLowerCase());
+        NameValue nv = this.getNameValue(name); // getNameValue takes care of name.toLowerCase()
         if (nv != null)
             return nv.getValueAsObject(stripQuotes);
         else
