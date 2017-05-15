@@ -80,18 +80,17 @@ public class ServerParser extends HeaderParser {
                 } else {
                     String tok;
                     int marker = 0;
-                    try {
-                        marker = this.lexer.markInputPosition();
-                        tok = this.lexer.getString('/');
-
-                        if (tok.charAt(tok.length() - 1) == '\n')
-                            tok = tok.trim();
-                        server.addProductToken(tok);
-                    } catch (ParseException ex) {
-                        this.lexer.rewindInputPosition(marker);
+                    marker = this.lexer.markInputPosition();
+                    tok = this.lexer.getString('/');
+                    if(tok == null) { // '/' not found
+                    	this.lexer.rewindInputPosition(marker);
                         tok = this.lexer.getRest().trim();
                         server.addProductToken(tok);
                         break;
+                    } else { // found
+		                if (tok.charAt(tok.length() - 1) == '\n')
+		                    tok = tok.trim();
+		                server.addProductToken(tok);
                     }
                 }
             }

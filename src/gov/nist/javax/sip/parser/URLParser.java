@@ -282,8 +282,9 @@ public class URLParser extends Parser {
         if (debug)
             dbg_enter("uricNoSlash");
         try {
-            try {
                 char la = lexer.lookAhead(0);
+                if(la == 0)
+                    return null;
                 if (isEscaped()) {
                     String retval = lexer.charAsString(3);
                     lexer.consume(3);
@@ -296,9 +297,6 @@ public class URLParser extends Parser {
                     return Lexer.charAsString(la);
                 } else
                     return null;
-            } catch (ParseException ex) {
-                return null;
-            }
         } finally {
             if (debug)
                 dbg_leave("uricNoSlash");

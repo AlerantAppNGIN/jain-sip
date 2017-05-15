@@ -128,11 +128,11 @@ public class StringTokenizer {
         return retval;
     }
 
-    public char lookAhead() throws ParseException {
+    public char lookAhead() {
         return lookAhead(0);
     }
 
-    public char lookAhead(int k) throws ParseException {
+    public char lookAhead(int k) {
         // Debug.out.println("ptr = " + ptr);
     	assert k >= 0;
     	if (buffer.length - ptr > k)
