@@ -148,7 +148,7 @@ public abstract class SIPHeaderList<HDR extends SIPHeader> extends SIPHeader imp
      *         (Contains string append of each encoded header).
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {
@@ -493,7 +493,7 @@ public abstract class SIPHeaderList<HDR extends SIPHeader> extends SIPHeader imp
      * is protected.
      */
     protected String encodeBody() {
-        return encodeBody(new StringBuilder()).toString();
+        return encodeBody(new StringBuilder(200)).toString();
     }
 
     protected StringBuilder encodeBody(StringBuilder buffer) {

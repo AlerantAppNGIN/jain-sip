@@ -344,7 +344,7 @@ public abstract class GenericObjectList extends LinkedList<GenericObject> implem
     public String encode() {
         if (this.isEmpty())
             return "";
-        StringBuilder encoding = new StringBuilder();
+        StringBuilder encoding = new StringBuilder(200);
         ListIterator iterator = this.listIterator();
         if (iterator.hasNext()) {
             while (true) {

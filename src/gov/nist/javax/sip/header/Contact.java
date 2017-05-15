@@ -97,7 +97,7 @@ public final  class Contact
      * @return string encoding of the header value.
      */
     protected String encodeBody() {
-        return encodeBody(new StringBuilder()).toString();
+        return encodeBody(new StringBuilder(200)).toString();
     }
 
     protected StringBuilder encodeBody(StringBuilder buffer) {

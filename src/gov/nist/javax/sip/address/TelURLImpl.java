@@ -155,11 +155,11 @@ public class TelURLImpl
      *@return -- the string encoding.
      */
     public String toString() {
-        return this.scheme + ":" + telephoneNumber.encode();
+        return encode();
     }
 
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

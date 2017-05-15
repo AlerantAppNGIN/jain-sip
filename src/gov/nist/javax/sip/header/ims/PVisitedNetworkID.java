@@ -80,7 +80,7 @@ public class PVisitedNetworkID
 
     public StringBuilder encodeBody(StringBuilder retval) {
 
-//        StringBuilder retval = new StringBuilder();
+//        StringBuilder retval = new StringBuilder(200);
 
         if (getVisitedNetworkID() != null)
         {

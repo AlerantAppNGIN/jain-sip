@@ -125,7 +125,7 @@ public class PVisitedNetworkIDParser extends ParametersParser implements TokenTy
 
         try {
 
-            StringBuilder retval = new StringBuilder();
+            StringBuilder retval = new StringBuilder(200);
 
             if (this.lexer.lookAhead(0) != '\"')
                 throw createParseException("unexpected char");

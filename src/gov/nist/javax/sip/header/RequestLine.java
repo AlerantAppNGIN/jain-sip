@@ -70,7 +70,7 @@ public class RequestLine extends SIPObject implements SipRequestLine {
      * @return requestLine encoded as a string.
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

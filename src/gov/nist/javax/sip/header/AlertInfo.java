@@ -69,7 +69,7 @@ public final class AlertInfo
      */
     @Override
     protected StringBuilder encodeBody(StringBuilder encoding) {
-//        StringBuilder encoding = new StringBuilder();
+//        StringBuilder encoding = new StringBuilder(200);
         if (uri != null) {
             encoding.append(LESS_THAN).append(uri.encode()).append(GREATER_THAN);
         } else if (string != null) {

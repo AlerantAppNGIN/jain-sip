@@ -161,7 +161,7 @@ public final class AddressImpl
      * @return String canonical encoded version of this address.
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

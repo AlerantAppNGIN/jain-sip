@@ -60,7 +60,7 @@ public class ExtensionHeaderList extends SIPHeaderList<ExtensionHeaderImpl> {
 
 
     public String encode() {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
         ListIterator<ExtensionHeaderImpl> it = this.listIterator();
         while(it.hasNext()) {
            ExtensionHeaderImpl eh = (ExtensionHeaderImpl) it.next();

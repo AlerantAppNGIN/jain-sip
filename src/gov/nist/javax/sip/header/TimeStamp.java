@@ -96,7 +96,7 @@ public class TimeStamp extends SIPHeader implements TimeStampHeader {
      * @return String
      */
     public StringBuilder encodeBody(StringBuilder retval) {        
-//        StringBuilder retval = new StringBuilder();
+//        StringBuilder retval = new StringBuilder(200);
         String s1 = getTimeStampAsString();
         String s2 = getDelayAsString();
         if (s1.equals("") && s2.equals(""))

@@ -93,7 +93,7 @@ public class MultipartMimeContentImpl implements MultipartMimeContent {
    */
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder();
+    StringBuilder result = new StringBuilder(200);
 
     for (Content content : this.contentList) {
       result.append("--" + boundary + Separators.NEWLINE);

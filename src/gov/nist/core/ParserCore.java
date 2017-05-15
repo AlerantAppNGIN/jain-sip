@@ -98,7 +98,7 @@ public abstract class ParserCore {
     }
 
     protected  void dbg_enter(String rule) {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder(200);
         for (int i = 0; i < nesting_level ; i++)
             stringBuilder.append(">");
 
@@ -112,7 +112,7 @@ public abstract class ParserCore {
     }
 
     protected void dbg_leave(String rule) {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder(200);
         for (int i = 0; i < nesting_level ; i++)
             stringBuilder.append("<");
 

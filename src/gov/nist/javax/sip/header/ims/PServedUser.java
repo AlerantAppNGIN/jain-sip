@@ -125,7 +125,7 @@ public class PServedUser extends AddressParametersHeader implements PServedUserH
     @Override
     protected StringBuilder encodeBody(StringBuilder retval) {
 
-//        StringBuilder retval = new StringBuilder();
+//        StringBuilder retval = new StringBuilder(200);
 
         retval.append(address.encode());
 

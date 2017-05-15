@@ -89,7 +89,7 @@ public abstract class SIPHeader
     * the headerName:
     */
     public String getHeaderValue() {
-      return encodeBody(new StringBuilder()).toString();
+      return encodeBody(new StringBuilder(200)).toString();
     }
 
     /** Return false if this is not a header list
@@ -103,7 +103,7 @@ public abstract class SIPHeader
     /** Encode this header into canonical form.
     */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

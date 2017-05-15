@@ -247,7 +247,7 @@ public  class CallAnalyzer {
 								if(logger != null && delta>statInfo.config.stuckTimeBeforeDump) {
 									logger.logWarning("Offending thread:\n" + getCurrentStack(info.getKey()));
 
-									StringBuilder sb = new StringBuilder();
+									StringBuilder sb = new StringBuilder(200);
 									Thread[] threads = new Thread[5000];
 									int count = Thread.enumerate(threads);
 									for(int q=0; q<count; q++) {
@@ -382,7 +382,7 @@ public  class CallAnalyzer {
 	 * @return
 	 */
 	public String getCurrentStack(Thread thread) {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(200);
 		sb.append("\n" + thread.getName() + " " + thread.getId() + " " + thread.getState().toString() + "\n");
 		StackTraceElement[] ste = thread.getStackTrace();
 		for( StackTraceElement el : ste ) {
@@ -396,7 +396,7 @@ public  class CallAnalyzer {
 	 * @return
 	 */
 	public String getThreadDump() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(200);
 		Thread[] threads = new Thread[5000];
 		int count = Thread.enumerate(threads);
 		for(int q=0; q<count; q++) {

@@ -72,7 +72,7 @@ public class RetryAfter extends ParametersHeader implements RetryAfterHeader {
      * @return encoded body
      */
     public StringBuilder encodeBody(StringBuilder retval) {
-//        StringBuilder s = new StringBuilder();
+//        StringBuilder s = new StringBuilder(200);
         
         if (retryAfter != null)
             retval.append(retryAfter);

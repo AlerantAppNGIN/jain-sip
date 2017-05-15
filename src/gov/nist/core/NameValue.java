@@ -167,7 +167,7 @@ public class NameValue extends GenericObject implements Entry<String,String> {
      * @return an encoded name value (eg. name=value) string.
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

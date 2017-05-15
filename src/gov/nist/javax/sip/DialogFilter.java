@@ -1342,7 +1342,7 @@ class DialogFilter implements ServerRequestInterface, ServerResponseInterface {
         if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
             logger.logDebug(
                     "PROCESSING INCOMING RESPONSE"
-                            + response.encodeMessage(new StringBuilder()));
+                            + response.encodeMessage(new StringBuilder(200)));
         }
         if (listeningPoint == null) {
             if (logger.isLoggingEnabled())
@@ -1547,7 +1547,7 @@ class DialogFilter implements ServerRequestInterface, ServerResponseInterface {
         if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
             logger.logDebug(
                     "PROCESSING INCOMING RESPONSE: "
-                            + sipResponse.encodeMessage(new StringBuilder()));
+                            + sipResponse.encodeMessage(new StringBuilder(200)));
         }
 
         if (sipStack.checkBranchId()

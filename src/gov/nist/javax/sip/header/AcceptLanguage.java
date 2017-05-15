@@ -73,7 +73,7 @@ public final class AcceptLanguage
      */
     @Override
     protected StringBuilder encodeBody(StringBuilder encoding) {
-//        StringBuilder encoding = new StringBuilder();
+//        StringBuilder encoding = new StringBuilder(200);
         if (languageRange != null) {
             encoding.append(languageRange);
         }

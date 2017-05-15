@@ -49,7 +49,7 @@ public class PAssertedService extends SIPHeader implements PAssertedServiceHeade
 
     @Override
     protected StringBuilder encodeBody(StringBuilder retval) {
-//        StringBuilder retval = new StringBuilder();
+//        StringBuilder retval = new StringBuilder(200);
 
          retval.append(ParameterNamesIms.SERVICE_ID);
 

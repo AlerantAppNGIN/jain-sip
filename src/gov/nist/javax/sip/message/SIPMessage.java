@@ -271,7 +271,7 @@ public abstract class SIPMessage extends MessageObject implements javax.sip.mess
      * @return a string with all the headers encoded.
      */
     protected StringBuilder encodeSIPHeaders(StringBuilder encoding) {
-//        StringBuilder encoding = new StringBuilder();
+//        StringBuilder encoding = new StringBuilder(200);
         Iterator<SIPHeader> it = this.headers.iterator();
 
         while (it.hasNext()) {
@@ -430,7 +430,11 @@ public abstract class SIPMessage extends MessageObject implements javax.sip.mess
      *         representation of the SDP payload if it exists).
      */
     public String encode() {
-        StringBuilder encoding = new StringBuilder();
+        // Prepare to hold many headers for large messages. Memory footprint is not relevant,
+        // as the initial buffer array is eligible for GC after we return from
+        // this method with the new String returned from SB.toString() .
+        // On the other hand, we save a lot of CPU by not resizing the SB unnecessarily.
+        StringBuilder encoding = new StringBuilder(2000);
         Iterator<SIPHeader> it = this.headers.iterator();
 
         while (it.hasNext()) {
@@ -492,7 +496,11 @@ public abstract class SIPMessage extends MessageObject implements javax.sip.mess
             InternalErrorHandler.handleException(e);
         }
 
-        StringBuilder encoding = new StringBuilder();
+        // Prepare to hold many headers for large messages. Memory footprint is not relevant,
+        // as the initial buffer array is eligible for GC after we return from
+        // this method with the new byte[] returned from SB.toString().getBytes() .
+        // On the other hand, we save a lot of CPU by not resizing the SB unnecessarily.
+        StringBuilder encoding = new StringBuilder(2000);
         synchronized (this.headers) {
             Iterator<SIPHeader> it = this.headers.iterator();
 
@@ -925,7 +933,7 @@ public abstract class SIPMessage extends MessageObject implements javax.sip.mess
         } else {
             // Old style client so construct the transaction identifier
             // from various fields of the request.
-            StringBuilder retval = new StringBuilder();
+            StringBuilder retval = new StringBuilder(200);
             From from = (From) this.getFrom();
             To to = (To) this.getTo();
             // String hpFrom = from.getUserAtHostPort();

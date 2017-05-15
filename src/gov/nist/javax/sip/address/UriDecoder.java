@@ -58,7 +58,7 @@ public class UriDecoder {
     	// if there is no % we just return the same uri
     	String uriToWorkOn = uri;
         int indexOfNextPercent = uriToWorkOn.indexOf("%");
-        StringBuilder decodedUri = new StringBuilder();
+        StringBuilder decodedUri = new StringBuilder(200);
              
         while(indexOfNextPercent != -1) {
         	decodedUri.append(uriToWorkOn.substring(0, indexOfNextPercent));

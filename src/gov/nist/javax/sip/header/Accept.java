@@ -89,7 +89,7 @@ public final class Accept
     *@return encoded value of the header as a string.
     */
     protected String encodeBody() {
-        return encodeBody(new StringBuilder()).toString();
+        return encodeBody(new StringBuilder(200)).toString();
     }
 
     protected StringBuilder encodeBody(StringBuilder buffer) {

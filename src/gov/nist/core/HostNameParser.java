@@ -88,7 +88,7 @@ public class HostNameParser extends ParserCore {
     }
 
     protected String ipv6Reference() throws ParseException {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
         if (debug)
             dbg_enter("ipv6Reference");
 

@@ -93,7 +93,7 @@ public class WebSocketHttpHandshake {
 		}
 
 		//answer the handshake
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(200);
 		String lineSeparator = "\r\n";
 		sb.append("HTTP/1.1 101 Web Socket Protocol Handshake").append("\r\n");
 		sb.append("Upgrade: WebSocket").append(lineSeparator);
@@ -163,7 +163,7 @@ public class WebSocketHttpHandshake {
 
 
 	private String readLine(InputStream is) throws IOException {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(200);
 
 		int cr = '\r';
 		int nl = '\n';

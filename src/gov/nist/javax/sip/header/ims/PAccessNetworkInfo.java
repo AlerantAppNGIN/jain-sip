@@ -246,7 +246,7 @@ public class PAccessNetworkInfo
 
     public StringBuilder encodeBody(StringBuilder encoding) {
 
-//        StringBuilder encoding = new StringBuilder();
+//        StringBuilder encoding = new StringBuilder(200);
 
         if (getAccessType() != null)
             encoding.append(getAccessType());

@@ -182,7 +182,7 @@ public class TelephoneNumber extends NetObject {
     }
 
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

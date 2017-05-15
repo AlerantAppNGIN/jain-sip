@@ -61,7 +61,7 @@ public class DuplicateNameValueList implements Serializable, Cloneable {
      * @since v1.0
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

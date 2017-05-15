@@ -88,7 +88,7 @@ public class PChargingFunctionAddresses
      */
     public StringBuilder encodeBody(StringBuilder encoding) {
 
-//        StringBuilder encoding = new StringBuilder();
+//        StringBuilder encoding = new StringBuilder(200);
 
         // issued by Miguel Freitas
         if (!duplicates.isEmpty())

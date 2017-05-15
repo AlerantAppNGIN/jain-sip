@@ -85,7 +85,7 @@ public final class CallIdentifier extends SIPObject {
      * @return String to set
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

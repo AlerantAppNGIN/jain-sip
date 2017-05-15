@@ -1045,7 +1045,7 @@ Caused by: java.text.ParseException: Scheme for contact should be sips:sip:proxy
         String requestUri = this.getRequestURI().toString();
 
         if (fromTag != null) {
-            return new StringBuilder().append(requestUri).append(":").append(fromTag).append(":").append(cseq).append(":")
+            return new StringBuilder(200).append(requestUri).append(":").append(fromTag).append(":").append(cseq).append(":")
                     .append(callId).toString();
         } else
             return null;

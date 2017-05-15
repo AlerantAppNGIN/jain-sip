@@ -336,7 +336,7 @@ public final class PipelinedMsgParser implements Runnable {
             while (isRunning) {
                 this.sizeCounter = this.maxMessageSize;
                 // this.messageSize = 0;
-                StringBuilder inputBuffer = new StringBuilder();
+                StringBuilder inputBuffer = new StringBuilder(200);
 
                 if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
                 	logger.logDebug("Starting to parse.");

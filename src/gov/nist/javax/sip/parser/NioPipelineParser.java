@@ -163,7 +163,7 @@ public class NioPipelineParser {
 		
 	}
 	
-	StringBuilder message = new StringBuilder();
+	StringBuilder message = new StringBuilder(200);
 	byte[] messageBody = null;
 	int contentLength = 0;
 	int contentReadSoFar = 0;
@@ -266,7 +266,7 @@ public class NioPipelineParser {
 			readingHeaderLines = true;
 			readingMessageBodyContents = false;
 			final String msgLines = message.toString();
-			message = new StringBuilder();
+			message = new StringBuilder(200);
 			final byte[] msgBodyBytes = messageBody;			
 			
 			if(sipStack.getSelfRoutingThreadpoolExecutor() != null) {

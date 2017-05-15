@@ -530,7 +530,7 @@ public class LexerCore extends StringTokenizer {
     * closing brace.
     */
     public String comment() throws ParseException {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
         if (lookAhead(0) != '(')
             return null;
         consume(1);
@@ -561,7 +561,7 @@ public class LexerCore extends StringTokenizer {
     *@return a substring containing no semicolons.
     */
     public String byteStringNoSemicolon() {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
         while (true) {
             char next = lookAhead(0);
             if (next == 0) // EOF
@@ -583,7 +583,7 @@ public class LexerCore extends StringTokenizer {
      * @return substring containing no slash.
      */
     public String byteStringNoSlash() {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
         while (true) {
             char next = lookAhead(0);
             if (next == 0) // EOF
@@ -604,7 +604,7 @@ public class LexerCore extends StringTokenizer {
     */
 
     public String byteStringNoComma() {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
             while (true) {
                 char next = lookAhead(0);
                 if (next == 0) // EOF
@@ -686,7 +686,7 @@ public class LexerCore extends StringTokenizer {
      * @return the substring that matches, or null if the character was not found
      */
     public String getString(char c) throws ParseException {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder(200);
         while (hasMoreChars()) {
             char next = lookAhead(0);
             //System.out.println(" next = [" + next + ']' + "ptr = " + ptr);

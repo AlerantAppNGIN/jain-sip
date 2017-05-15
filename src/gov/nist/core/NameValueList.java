@@ -91,7 +91,9 @@ public class NameValueList implements Serializable, Cloneable, Map<String,NameVa
      * @since v1.0
      */
     public String encode() {
-        return encode(new StringBuilder()).toString();
+        if(this.isEmpty())
+            return "";
+        return encode(new StringBuilder(200)).toString();
     }
 
     public StringBuilder encode(StringBuilder buffer) {

@@ -74,7 +74,11 @@ public final class ReplyTo
      * @return String
      */
     public String encode() {
-        return headerName + COLON + SP + encodeBody(new StringBuilder()).toString() + NEWLINE;
+        StringBuilder buffer = new StringBuilder(200);
+        buffer.append(headerName).append(COLON).append(SP);
+        encodeBody(buffer);
+        buffer.append(NEWLINE);
+        return buffer.toString();
     }
 
     /**

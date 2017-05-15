@@ -73,7 +73,7 @@ public class PAssertedIdentity
      *@return String containing the canonicaly encoded header.
      */
     public StringBuilder encodeBody(StringBuilder retval) {
-//        StringBuilder retval = new StringBuilder();
+//        StringBuilder retval = new StringBuilder(200);
         if (address.getAddressType() == AddressImpl.ADDRESS_SPEC) {
             retval.append(LESS_THAN);
         }

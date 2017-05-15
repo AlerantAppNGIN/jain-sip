@@ -96,7 +96,7 @@ public class ContentImpl implements Content {
    * @see Content#toString()
    */
   public String toString() {
-    StringBuilder result = new StringBuilder();
+    StringBuilder result = new StringBuilder(200);
     if (contentTypeHeader != null) {
       result.append(contentTypeHeader.toString());
     }

@@ -92,7 +92,7 @@ public final class AuthenticationInfo
      *
      */
     public String getAuthenticationInfo() {
-        return this.encodeBody(new StringBuilder()).toString();
+        return this.encodeBody(new StringBuilder(200)).toString();
     }
 
     /** Returns the CNonce value of this AuthenticationInfoHeader.

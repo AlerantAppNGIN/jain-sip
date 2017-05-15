@@ -119,7 +119,7 @@ public final class ContentDisposition
      * @return interpretation of the message body or message body part
      */
     public String getContentDisposition() {
-        return this.encodeBody(new StringBuilder()).toString();
+        return this.encodeBody(new StringBuilder(200)).toString();
     }
 }
 /*

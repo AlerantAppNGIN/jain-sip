@@ -785,7 +785,7 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
 //
 //        long newScheduledTime =  lastKeepAliveReceivedTimeOrNow + newKeepAliveTimeout;
 
-        StringBuilder methodLog = new StringBuilder();
+        StringBuilder methodLog = new StringBuilder(200);
 
         if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG)) {
             methodLog.append("~~~ rescheduleKeepAliveTimeout for MessageChannel(key=" + key + "), clientAddress=" + peerAddress

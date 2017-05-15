@@ -65,7 +65,7 @@ public class PUserDatabase extends gov.nist.javax.sip.header.ParametersHeader  i
             throw new NullPointerException("Database name is null");
         else
             if(!databaseName.contains("aaa://"))
-        this.databaseName = new StringBuilder().append("aaa://").append(databaseName).toString();
+        this.databaseName = new StringBuilder(200).append("aaa://").append(databaseName).toString();
             else
                 this.databaseName = databaseName;
 
@@ -73,7 +73,7 @@ public class PUserDatabase extends gov.nist.javax.sip.header.ParametersHeader  i
 
     public StringBuilder encodeBody(StringBuilder retval) {
 
-//        StringBuilder retval = new StringBuilder();
+//        StringBuilder retval = new StringBuilder(200);
         retval.append("<");
         if(getDatabaseName()!=null)
         retval.append(getDatabaseName());

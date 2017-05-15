@@ -57,7 +57,7 @@ public class UserAgent extends SIPHeader implements UserAgentHeader {
      * @return String
      */
     private StringBuilder encodeProduct(StringBuilder tokens) {
-//        StringBuilder tokens = new StringBuilder();
+//        StringBuilder tokens = new StringBuilder(200);
         ListIterator it = productTokens.listIterator();
 
         while (it.hasNext()) {
