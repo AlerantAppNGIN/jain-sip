@@ -983,15 +983,15 @@ c:/jakarta-ant/bin/ant all
  	<target name="addrepo" description="Add build results to maven local repository for another projects to use" depends="init-m2-exec">
   	    <exec dir="${basedir}" executable="${executable}">
  		<arg value="install:install-file"/>
- 		<arg line="-Dfile=jain-sip-api-1.2.jar -DgroupId=javax.sip -DartifactId=jain-sip-api -Dversion=1.2.0-tsdp-paas-1 -Dpackaging=jar" />
+ 		<arg line="-Dfile=jain-sip-api-1.2.jar -DgroupId=javax.sip -DartifactId=jain-sip-api -Dversion=1.2.0-tsdp-paas-2 -Dpackaging=jar" />
  	    </exec>
  	    <exec dir="${basedir}" executable="${executable}">
  		<arg value="install:install-file"/>
- 		<arg line="-Dfile=jain-sip-api-1.2-src.jar -DgroupId=javax.sip -DartifactId=jain-sip-src -Dversion=1.2.0-sources-tsdp-paas-1 -Dpackaging=jar" />
+ 		<arg line="-Dfile=jain-sip-api-1.2-src.jar -DgroupId=javax.sip -DartifactId=jain-sip-src -Dversion=1.2.0-sources-tsdp-paas-2 -Dpackaging=jar" />
  	    </exec>
  	    <exec dir="${basedir}" executable="${executable}">
  		<arg value="install:install-file"/>
- 		<arg line="-Dfile=jain-sip-ri-1.2.1111.jar -DgroupId=javax.sip -DartifactId=jain-sip-ri -Dversion=1.2.295-tsdp-paas-1 -Dpackaging=jar" />
+ 		<arg line="-Dfile=jain-sip-ri-1.2.1111.jar -DgroupId=javax.sip -DartifactId=jain-sip-ri -Dversion=1.2.295-tsdp-paas-2 -Dpackaging=jar" />
  	    </exec>
  	</target>
 </project>
