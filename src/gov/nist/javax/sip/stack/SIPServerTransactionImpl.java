@@ -219,7 +219,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
     private Semaphore terminationSemaphore = new Semaphore(0);
 
     // jeand we nullify the last response fast to save on mem and help GC, but we keep only the information needed
-    private byte[] lastResponseAsBytes;
+    private volatile byte[] lastResponseAsBytes;
     private String lastResponseHost;
     private int lastResponsePort;
     private String lastResponseTransport;
@@ -2108,12 +2108,18 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                     originalRequest = null;
                 }
             }
-            if(lastResponse != null) {
-            	if(getReleaseReferencesStrategy() == ReleaseReferencesStrategy.Normal) {
-            		lastResponseAsBytes = lastResponse.encodeAsBytes(this.getTransport());
-            	}
-                lastResponse = null;
-            }
+			if (getReleaseReferencesStrategy() == ReleaseReferencesStrategy.Normal) {
+				// If another response is sent out at the same time (e.g. automatic
+				// 100 Trying racing with the application response), an NPE could
+				// occur after the null check as the other thread will set
+				// lastResponse to null as well. We perform a single read of the volatile
+				// ref instead of accessing it twice or using some kind of synchronization.
+				SIPResponse lastResponse = this.lastResponse;
+				if (lastResponse != null) {
+					lastResponseAsBytes = lastResponse.encodeAsBytes(this.getTransport());
+				}
+			}
+            lastResponse = null;
             pendingReliableResponseAsBytes = null;
             pendingReliableResponseMethod = null;
             pendingSubscribeTransaction = null;

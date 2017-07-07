@@ -116,7 +116,7 @@ public abstract class SIPTransactionImpl implements SIPTransaction {
     // Proposed feature for next release.
     protected transient Object applicationData;
 
-    protected SIPResponse lastResponse;
+    protected volatile SIPResponse lastResponse;
 
     // private SIPDialog dialog;
     
