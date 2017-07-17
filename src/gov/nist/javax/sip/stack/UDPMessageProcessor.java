@@ -136,7 +136,9 @@ public class UDPMessageProcessor extends MessageProcessor implements Runnable {
         if(sipStack.getStackCongestionControlTimeout()>0) {
         	this.congestionAuditor = new BlockingQueueDispatchAuditor(this.messageQueue);
         	this.congestionAuditor.setTimeout(sipStack.getStackCongestionControlTimeout());
-        	this.congestionAuditor.start(2000);
+			// Be busier than the timeout: use 1/4th of the stuck time, but min. 100ms
+			int congestionCheckInterval = Math.max(100, sipStack.getStackCongestionControlTimeout() / 4);
+			this.congestionAuditor.start(congestionCheckInterval);
         }
 
         this.port = port;
