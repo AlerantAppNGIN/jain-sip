@@ -53,6 +53,12 @@ public class CallAnalysisInterceptor implements SIPEventInterceptor {
 	public void beforeMessage(Message message) {
 		callAnalyzer.enter(interceptorCheckpoint);
 	}
+	
+	@Override
+	public int beforeMessage(Message message, long receptionTime) {
+		callAnalyzer.enter(interceptorCheckpoint);
+		return 0;
+	}
 
 	public void destroy() {
 		callAnalyzer.stop();
@@ -72,6 +78,5 @@ public class CallAnalysisInterceptor implements SIPEventInterceptor {
 				checkingInterval, minTimeBetweenDumps, minStuckTime);
 		callAnalyzer.configure(interceptorCheckpoint, config);
 	}
-	
 
 }

@@ -139,6 +139,15 @@ public class UDPMessageChannel extends MessageChannel implements
 
     private Thread mythread = null;
 
+    /** Current total count of messages dropped, as instructed by the SIPEventInterceptor. */
+    private long totalDroppedMessages = 0;
+    /** Total count of messages dropped when we last logged it. */
+    private long lastLoggedDroppedMessageCount = 0;
+    /** Timestamp of last log. */
+    private long lastLogTime = System.currentTimeMillis();
+    /** Minimum delay between message drop logs, currently not configurable. */
+    private static final long logIntervalMillisForDroppedMessages = 5000;
+    
     /*
      * A table that keeps track of when the last pingback was sent to a given
      * remote IP address and port. This is for NAT compensation. This stays in
@@ -219,6 +228,7 @@ public class UDPMessageChannel extends MessageChannel implements
             UDPMessageProcessor messageProcessor, DatagramPacket packet) {
 
         this.incomingPacket = packet;
+        this.receptionTime = System.currentTimeMillis();
         super.messageProcessor = messageProcessor;
         this.sipStack = stack;
 
@@ -277,8 +287,6 @@ public class UDPMessageChannel extends MessageChannel implements
         final UDPMessageProcessor udpMessageProcessor = (UDPMessageProcessor) messageProcessor;
 
         while (true) {
-            // messages that we write out to him.
-            DatagramPacket packet = null;
 
             if (sipStack.threadPoolSize != -1) {
 
@@ -308,25 +316,24 @@ public class UDPMessageChannel extends MessageChannel implements
 	                if (work == null) {
 	                	continue;
 	                } else {
-	                	packet = work.packet;
-		                this.incomingPacket = work.packet;						
+						this.incomingPacket = work.packet;
+						this.receptionTime = work.getReceptionTime();
 	                }	                	
                 } catch (InterruptedException ex) {
 					if (!udpMessageProcessor.isRunning) {
 						return;
 					}
 				}
-            } else {
-                packet = this.incomingPacket;
             }
+            // else incomingPacket and receptionTime were set already in the ctor
 
             // Process the packet. Catch and log any exception we may throw.
             try {
-                processIncomingDataPacket(packet);
+                processIncomingDataPacket(incomingPacket, receptionTime);
             } catch (Exception e) {
 
                 logger.logError(
-                        "Error while processing incoming UDP packet" + Arrays.toString(packet.getData()), e);
+                        "Error while processing incoming UDP packet" + Arrays.toString(incomingPacket.getData()), e);
             }
 
             if (sipStack.threadPoolSize == -1) {
@@ -335,13 +342,28 @@ public class UDPMessageChannel extends MessageChannel implements
         }
     }
 
+	private void logDroppedMessagesIfAny() {
+		if (totalDroppedMessages == lastLoggedDroppedMessageCount)
+			return;
+		long now = System.currentTimeMillis();
+		long delay = now - lastLogTime;
+		if (delay < logIntervalMillisForDroppedMessages)
+			return;
+		if (logger.isLoggingEnabled(LogLevels.TRACE_WARN)) {
+			logger.logWarning("SIPEventInterceptor dropped " + (totalDroppedMessages - lastLoggedDroppedMessageCount)
+					+ " messages in the last " + delay + "ms, total dropped " + totalDroppedMessages);
+		}
+		lastLogTime = now;
+		lastLoggedDroppedMessageCount = totalDroppedMessages;
+	}
+
     /**
      * Process an incoming datagram
      *
      * @param packet
      *            is the incoming datagram packet.
      */
-    private void processIncomingDataPacket(DatagramPacket packet)
+    private void processIncomingDataPacket(DatagramPacket packet, long receptionTime)
             throws Exception {
         this.peerAddress = packet.getAddress();
         int packetLength = packet.getLength();
@@ -361,7 +383,6 @@ public class UDPMessageChannel extends MessageChannel implements
 
         SIPMessage sipMessage = null;
         try {
-            this.receptionTime = System.currentTimeMillis();
             sipMessage = myParser.parseSIPMessage(msgBytes, true, false, this);
             /*@see Issue 292 */
             if (sipMessage instanceof SIPRequest) {
@@ -473,9 +494,19 @@ public class UDPMessageChannel extends MessageChannel implements
             return;
         }
 
-        if(sipStack.sipEventInterceptor != null) {
-            sipStack.sipEventInterceptor.beforeMessage(sipMessage);
-        }
+		if (sipStack.sipEventInterceptor != null) {
+			int appDecision = sipStack.sipEventInterceptor.beforeMessage(sipMessage, receptionTime);
+			if ((appDecision & SIPEventInterceptor.FLAG_DROP_MESSAGE) > 0) {
+				if (logger.isLoggingEnabled(LogLevels.TRACE_TRACE)) {
+					logger.logTrace("SIPEventInterceptor instructed to drop this message:\n" + sipMessage);
+				}
+				totalDroppedMessages += 1;
+				logDroppedMessagesIfAny();
+				return;
+			} else {
+				logDroppedMessagesIfAny();
+			}
+		}
         // For a request first via header tells where the message
         // is coming from.
         // For response, just get the port from the packet.

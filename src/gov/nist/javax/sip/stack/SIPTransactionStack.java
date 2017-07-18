@@ -391,7 +391,7 @@ public abstract class SIPTransactionStack implements
 
     public SIPMessageValve sipMessageValve;
     
-    public SIPEventInterceptor sipEventInterceptor;
+    public volatile SIPEventInterceptor sipEventInterceptor;
 
     protected static ScheduledExecutorService selfRoutingThreadpoolExecutor;
 

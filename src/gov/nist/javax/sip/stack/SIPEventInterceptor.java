@@ -37,14 +37,31 @@ import javax.sip.message.Message;
  */
 public interface SIPEventInterceptor {
 	
+	public static final int FLAG_DROP_MESSAGE = 1;
+
 	/**
-	 * This method is called immediately after a SIP message has been parsed and before it is processed
-	 * in the JAIN SIP pipeline.
+	 * This method is called immediately after a SIP message has been parsed and
+	 * before it is processed in the JAIN SIP pipeline. Currently only used for non-UDP.
 	 * 
 	 * @param message
 	 */
 	void beforeMessage(Message message);
-	
+
+	/**
+	 * This method is called immediately after a SIP message has been parsed and
+	 * before it is processed in the JAIN SIP pipeline. The application may
+	 * return different flags to the stack to alter the behavior of the
+	 * pipeline. Currently only used on UDP.
+	 *
+	 * @param message
+	 *            The parsed message.
+	 * @param receptionTime
+	 *            The reception time of the message.
+	 * @return A bitwise OR of the flags defined in this interface, or 0 if no
+	 *         special action is to be taken.
+	 */
+	int beforeMessage(Message message, long receptionTime);
+
 	/**
 	 * This message is called after the message has been processed by JAIN SIP
 	 * @param message
