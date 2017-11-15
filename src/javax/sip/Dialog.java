@@ -1,8 +1,8 @@
 /**
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Unpublished - rights reserved under the Copyright Laws of the United States.
- * Copyright © 2003 Sun Microsystems, Inc. All rights reserved.
- * Copyright © 2005 BEA Systems, Inc. All rights reserved.
+ * Copyright Â© 2003 Sun Microsystems, Inc. All rights reserved.
+ * Copyright Â© 2005 BEA Systems, Inc. All rights reserved.
  *
  * Use is subject to license terms.
  *
@@ -714,7 +714,7 @@ public interface Dialog extends Serializable {
      * subscriptions in it are destroyed. Hence, if the application is aware of
      * active subscriptions in a dialog it should set this flag to false. In
      * this case when BYE is received the dialog will not be terminated and it
-     * will be the application’s responsibility to call the
+     * will be the application's responsibility to call the
      * {@link Dialog#delete()} function when all active subscriptions are
      * terminated.
      *
