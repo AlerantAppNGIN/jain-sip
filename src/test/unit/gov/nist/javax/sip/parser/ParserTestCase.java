@@ -67,12 +67,17 @@ public abstract class ParserTestCase extends TestCase {
         System.out.println("done " + getClass().getName());
     }
 
-    protected void testParser(Class parserClass, String[] headers) {
+    /**
+     * @return the parsed headers, so that the subclass can perform additional header-specific checks on the results
+     */
+    protected SIPHeader[] testParser(Class parserClass, String[] headers) {
+        SIPHeader[] ret = new SIPHeader[headers.length];
         try {
             for (int i = 0; i < headers.length; i++) {
                 System.out.print(headers[i]);
                 HeaderParser hp = createParser(parserClass, headers[i]);
                 SIPHeader hdr = (SIPHeader) hp.parse();
+                ret[i] = hdr;
 
                 if ( hdr instanceof SIPHeaderList<?> ) {
                 	SIPHeaderList<?> list = (SIPHeaderList<?>) hdr;
@@ -93,6 +98,7 @@ public abstract class ParserTestCase extends TestCase {
             e.printStackTrace();
             fail("Unexpected exception " + getClass().getName());
         }
+        return ret;
     }
 
     public abstract void testParser();
