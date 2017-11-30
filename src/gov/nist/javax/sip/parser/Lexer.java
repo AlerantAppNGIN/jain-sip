@@ -26,6 +26,7 @@
 package gov.nist.javax.sip.parser;
 
 import gov.nist.core.LexerCore;
+import gov.nist.javax.sip.header.extensions.HistoryInfoHeader;
 import gov.nist.javax.sip.header.extensions.JoinHeader;
 import gov.nist.javax.sip.header.extensions.MinSEHeader;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
@@ -381,6 +382,9 @@ public class Lexer extends LexerCore {
                 
                 // added References header
                 addKeyword(ReferencesHeader.NAME,TokenTypes.REFERENCES);
+
+                // RFC7044
+                addKeyword(HistoryInfoHeader.NAME, TokenTypes.HISTORY_INFO);
 
                 // end //
 

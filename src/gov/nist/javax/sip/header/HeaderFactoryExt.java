@@ -2,6 +2,7 @@ package gov.nist.javax.sip.header;
 
 import java.text.ParseException;
 
+import gov.nist.javax.sip.header.extensions.HistoryInfoHeader;
 import gov.nist.javax.sip.header.extensions.JoinHeader;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
@@ -284,6 +285,23 @@ public interface HeaderFactoryExt extends HeaderFactory {
      * @return the newly created References header.
      */
     public ReferencesHeader createReferencesHeader(String callId, String rel) throws ParseException;
+
+
+    /**
+     * Create a History-Info header with the bare minimum elements.
+     *
+     * <p>To enable using headers compliant with RFC-4244 only, hi-target-param is not a mandatory parameter, but can be added later using
+     *   {@link HistoryInfoHeader#setTargetParam(gov.nist.javax.sip.header.extensions.HistoryInfoHeader.TargetParam, String) HistoryInfoHeader.setTargetParam}.
+     * Note that an RFC-7044 compliant agent MUST add the hi-target-param parameter.
+     * <p>Extension parameters may also be added using {@link HistoryInfoHeader#setParameter(String, String) HistoryInfoHeader.setParameter}.
+     *
+     * @param hiTargetedToUri the hi-targeted-to-uri
+     * @param index the hi-index
+     * @return the newly created History-Info header
+     * @throws NullPointerException if either argument is null
+     * @throws IllegalArgumentException if the index is syntactically invalid
+     */
+    public HistoryInfoHeader createHistoryInfoHeader(Address hiTargetedToUri, String index);
     
     /**
      * Create a header from a string. The string is assumed to be in the 

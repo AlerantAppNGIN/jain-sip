@@ -26,6 +26,7 @@
 package gov.nist.javax.sip.parser;
 import gov.nist.core.InternalErrorHandler;
 import gov.nist.javax.sip.header.SIPHeaderNamesCache;
+import gov.nist.javax.sip.header.extensions.HistoryInfo;
 import gov.nist.javax.sip.header.extensions.Join;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.References;
@@ -52,6 +53,7 @@ import gov.nist.javax.sip.header.ims.SecurityClientHeader;
 import gov.nist.javax.sip.header.ims.SecurityServerHeader;
 import gov.nist.javax.sip.header.ims.SecurityVerifyHeader;
 import gov.nist.javax.sip.header.ims.ServiceRouteHeader;
+import gov.nist.javax.sip.parser.extensions.HistoryInfoParser;
 import gov.nist.javax.sip.parser.extensions.JoinParser;
 import gov.nist.javax.sip.parser.extensions.MinSEParser;
 import gov.nist.javax.sip.parser.extensions.ReferencesParser;
@@ -388,6 +390,8 @@ public class ParserFactory {
         //http://tools.ietf.org/html/draft-worley-references-05
         parserTable.put(References.NAME.toLowerCase(), ReferencesParser.class);
         
+        // Per RFC 7044
+        parserTable.put(HistoryInfo.NAME.toLowerCase(), HistoryInfoParser.class);
     }
 
     /** 

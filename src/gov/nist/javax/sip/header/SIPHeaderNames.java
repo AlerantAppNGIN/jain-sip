@@ -117,5 +117,6 @@ public interface SIPHeaderNames {
     public static final String REPLACES = ReplacesHeader.NAME; //51
     public static final String JOIN = JoinHeader.NAME; //52
 
+    public static final String HISTORY_INFO = HistoryInfoHeader.NAME;
 }
 

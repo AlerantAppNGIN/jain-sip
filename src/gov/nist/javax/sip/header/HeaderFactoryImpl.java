@@ -1686,6 +1686,12 @@ public class HeaderFactoryImpl implements HeaderFactory , HeaderFactoryExt {
     }
     
     
+    @Override
+    public HistoryInfoHeader createHistoryInfoHeader(Address hiTargetedToUri, String index) {
+        HistoryInfo ret = new HistoryInfo((AddressImpl) hiTargetedToUri);
+        ret.setIndex(index);
+        return ret;
+    }
 
 
     //////////////////////////////////////////////////////////

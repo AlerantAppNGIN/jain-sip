@@ -167,6 +167,9 @@ public interface TokenTypes {
     //mranga - References header
     public static final int REFERENCES = START + 98;
 
+    // RFC 7044: History-Info header
+    public static final int HISTORY_INFO = START + 99;
+
     public static final int ALPHA = LexerCore.ALPHA;
     public static final int DIGIT = LexerCore.DIGIT;
     public static final int ID = LexerCore.ID;

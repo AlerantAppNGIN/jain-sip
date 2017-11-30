@@ -25,6 +25,7 @@
 */
 package gov.nist.javax.sip.header;
 import gov.nist.core.PackageNames;
+import gov.nist.javax.sip.header.extensions.HistoryInfo;
 import gov.nist.javax.sip.header.ims.PAccessNetworkInfo;
 import gov.nist.javax.sip.header.ims.PAccessNetworkInfoHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentity;
@@ -196,6 +197,7 @@ public class NameMap implements SIPHeaderNames, PackageNames {
         // jean deruelle
         putNameMap(JOIN, "Join");
 
+        putNameMap(HISTORY_INFO, HistoryInfo.class.getName());
 
         // IMS Specific headers.
 
