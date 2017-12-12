@@ -97,6 +97,7 @@ import javax.sip.IOExceptionEvent;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.ObjectInUseException;
+import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.Transaction;
 import javax.sip.TransactionDoesNotExistException;
@@ -3872,7 +3873,17 @@ public class SIPDialog implements javax.sip.Dialog, DialogExt {
             return false;
         }
 
-        return sipServerTransaction.prackRecieved();
+        boolean ret = sipServerTransaction.prackRecieved();
+        TransactionState firstServerTxState = sipServerTransaction.getState();
+        // if the last PRACK arrived later than the ACK, the INVITE transaction
+        // was not cleaned in cleanUpOnAck, so we check and clean it up here
+		if (ret && (firstServerTxState == TransactionState.CONFIRMED
+				|| firstServerTxState == TransactionState.TERMINATED)) {
+			logger.logDebug("PRACK arrived and first transaction state is " + firstServerTxState
+					+ ", trying to clean first transaction");
+			cleanUpFirstTransactionIfPossible();
+		}
+		return ret;
     }
 
     /*
@@ -4265,6 +4276,23 @@ public class SIPDialog implements javax.sip.Dialog, DialogExt {
     public long getLastResponseCSeqNumber() {
         return lastResponseCSeqNumber;
     }
+    
+	protected void cleanUpFirstTransactionIfPossible() {
+		if (firstTransaction != null) {
+			if (firstTransaction instanceof SIPServerTransaction
+					&& "INVITE".equals(firstTransaction.getMethod())
+					&& ((SIPServerTransaction) firstTransaction).getReliableProvisionalResponse() != null) {
+				logger.logDebug("cleanUpFirstTransaction: PRACK is still pending for dialog " + this
+						+ ", not cleaning first transaction");
+			} else {
+				if (firstTransaction.getOriginalRequest() != null) {
+					firstTransaction.getOriginalRequest().cleanUp();
+				}
+				firstTransaction = null;
+				logger.logDebug("cleanUpFirstTransaction: cleaned first transaction from dialog " + this);
+			}
+		}
+	}
 
     // jeand cleanup the dialog from the data not needed anymore upon receiving
     // or sending an ACK
@@ -4283,12 +4311,7 @@ public class SIPDialog implements javax.sip.Dialog, DialogExt {
                 originalRequestRecordRouteHeaders = null;
                 originalRequest = null;
             }
-            if (firstTransaction != null) {
-                if (firstTransaction.getOriginalRequest() != null) {
-                    firstTransaction.getOriginalRequest().cleanUp();
-                }
-                firstTransaction = null;
-            }
+            cleanUpFirstTransactionIfPossible();
             if (lastTransaction != null) {
                 if (lastTransaction.getOriginalRequest() != null) {
                     lastTransaction.getOriginalRequest().cleanUp();

@@ -1833,14 +1833,15 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
     @Override
     public boolean prackRecieved() {
 
-        if (this.pendingReliableResponseAsBytes == null)
-            return false;
-           if(provisionalResponseTask != null) {
-               sipStack.getTimer().cancel(provisionalResponseTask);
-               this.provisionalResponseTask = null;
-           }
+		if (this.pendingReliableResponseAsBytes == null)
+			return false;
+		if (provisionalResponseTask != null) {
+			sipStack.getTimer().cancel(provisionalResponseTask);
+			this.provisionalResponseTask = null;
+		}
 
         this.pendingReliableResponseAsBytes = null;
+        this.pendingReliableResponseMethod = null;
         if ( interlockProvisionalResponses && getDialog() != null )  {
             this.provisionalResponseSem.release();
         }
@@ -2120,10 +2121,11 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
 				}
 			}
             lastResponse = null;
-            pendingReliableResponseAsBytes = null;
-            pendingReliableResponseMethod = null;
+			// don't delete reliable provisional response when moving to confirmed state to allow handling of delayed PRACK
+			// pendingReliableResponseAsBytes = null;
+			// pendingReliableResponseMethod = null;
+			// provisionalResponseSem = null;
             pendingSubscribeTransaction = null;
-            provisionalResponseSem = null;
             retransmissionAlertTimerTask = null;
             requestOf = null;
         }
