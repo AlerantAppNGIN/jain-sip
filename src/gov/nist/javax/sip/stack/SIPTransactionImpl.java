@@ -194,6 +194,12 @@ public abstract class SIPTransactionImpl implements SIPTransaction {
 	// http://java.net/jira/browse/JSIP-420
     private MaxTxLifeTimeListener maxTxLifeTimeListener;
 
+	private final long creationTime = System.currentTimeMillis();
+
+	public long getCreationTime() {
+		return creationTime;
+	}
+
     /**
      * @see gov.nist.javax.sip.stack.SIPTransaction#getBranchId()
      */

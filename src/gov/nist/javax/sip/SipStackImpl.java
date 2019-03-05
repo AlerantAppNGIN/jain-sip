@@ -1819,6 +1819,10 @@ public class SipStackImpl extends SIPTransactionStack implements
 			this.eventScanner = new EventScanner(this);
 		}
 
+		if (getMaxTxLifetimeInvite() > 0 || getMaxTxLifetimeNonInvite() > 0) {
+			new MemleakDetector(this).start();
+		}
+
 	}
 
 	/**
@@ -2032,8 +2036,5 @@ public class SipStackImpl extends SIPTransactionStack implements
 	public boolean isReEntrantListener() {
 		return reEntrantListener;
 	}
-
-
-    
 
 }
