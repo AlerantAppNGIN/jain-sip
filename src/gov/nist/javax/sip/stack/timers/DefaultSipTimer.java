@@ -29,12 +29,12 @@ import gov.nist.core.CommonLogger;
 import gov.nist.core.StackLogger;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.stack.SIPStackTimerTask;
-import gov.nist.javax.sip.stack.SIPTransactionStack;
 
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Default SIP Timer implementation based on java.util.Timer 
@@ -47,7 +47,9 @@ public class DefaultSipTimer extends Timer implements SipTimer {
 
 	protected AtomicBoolean started = new AtomicBoolean(false);
 	protected SipStackImpl sipStackImpl;
-	
+	private static final int purgeCycle = Integer.getInteger("gov.nist.javax.sip.stack.timers.DefaultSipTimer.purgeCycle", 1000);
+	protected AtomicLong purgeOnCancelCounter = new AtomicLong(0);
+
         public DefaultSipTimer() {
             super("DefaultSipTimerThread");
         }
@@ -73,11 +75,20 @@ public class DefaultSipTimer extends Timer implements SipTimer {
 		}
 		
 		public boolean cancel() {
+			purgeIfNeeded();
 			if(task != null) {
 				task.cleanUpBeforeCancel();
 				task = null;
 			}
 			return super.cancel();
+		}
+	}
+	
+	// Avoid the accumulation of cancelled tasks by calling purge on the timer after
+	// every n call to this method.
+	private void purgeIfNeeded() {
+		if (purgeOnCancelCounter.incrementAndGet() % purgeCycle == 0) {
+			purge();
 		}
 	}
 	
