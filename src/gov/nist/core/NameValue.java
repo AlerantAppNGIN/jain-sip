@@ -45,8 +45,22 @@ import java.util.Map.Entry;
  *
  */
 public class NameValue extends GenericObject implements Entry<String,String> {
+    private static StackLogger logger = CommonLogger.getLogger(NameValue.class);
 
     private static final long serialVersionUID = -1857729012596437950L;
+
+	// By default intern() all names and values, as it saves a lot of memory by only
+	// storing duplicate strings once.
+	// Good examples are protocol strings that appear in almost every
+	// request/response, e.g. "lr", "branch", "transport", "tag", etc.
+	// Disable interning if explicitly requested by system property, but allow runtime toggling via setter method if required for whatever reason.
+    private static volatile boolean INTERN_STRINGS = !Boolean.getBoolean("gov.nist.core.NameValue.disableStringIntern");
+    static {
+        if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
+            logger.logDebug("gov.nist.core.NameValue initially configured to " + (INTERN_STRINGS ? "" : "not ")
+            + "intern String values, use `-Dgov.nist.core.NameValue.disableStringIntern=(true|false)` to change this");
+        }
+    }
 
     protected boolean isQuotedString;
 
@@ -79,8 +93,8 @@ public class NameValue extends GenericObject implements Entry<String,String> {
 
         // assert (v != null ); // I dont think this assertion is correct mranga
 
-        name = n;
-        value = v;
+        setName(n);
+        setValueAsObject(v);
         separator = Separators.EQUALS;
         quotes = "";
         this.isFlagParameter = isFlag;
@@ -143,14 +157,14 @@ public class NameValue extends GenericObject implements Entry<String,String> {
      * Set the name member
      */
     public void setName(String n) {
-        name = n;
+        name = INTERN_STRINGS && n != null ? n.intern() : n;
     }
 
     /**
      * Set the value member
      */
     public void setValueAsObject(Object v) {
-        value = v;
+        value = INTERN_STRINGS && v instanceof String ? ((String) v).intern() : v;
     }
 
     /**
@@ -285,8 +299,8 @@ public class NameValue extends GenericObject implements Entry<String,String> {
      * @see java.util.Map$Entry#setValue(java.lang.Object)
      */
     public String setValue(String value) {
-        String retval = this.value == null ? null : value;
-        this.value = value;
+        String retval = getValue();
+        this.value = INTERN_STRINGS && value != null ? value.intern() : value;
         return retval;
 
     }
@@ -294,5 +308,12 @@ public class NameValue extends GenericObject implements Entry<String,String> {
     @Override
     public int hashCode() {
         return this.encode().toLowerCase().hashCode();
+    }
+
+    public static void setInternStrings(boolean value) {
+        if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
+            logger.logDebug("gov.nist.core.NameValue now configured to " + (INTERN_STRINGS ? "" : "not ") + "intern Strings");
+        }
+        INTERN_STRINGS = value;
     }
 }
