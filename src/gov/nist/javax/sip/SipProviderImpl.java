@@ -162,8 +162,8 @@ public class SipProviderImpl implements javax.sip.SipProvider, gov.nist.javax.si
         if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
             logger.logDebug(
                     "handleEvent " + sipEvent + "currentTransaction = "
-                            + transaction + "this.sipListener = "
-                            + this.getSipListener() + "sipEvent.source = "
+                            + transaction + " this.sipListener = "
+                            + this.getSipListener() + " sipEvent.source = "
                             + sipEvent.getSource());
             if (sipEvent instanceof RequestEvent) {
                 Dialog dialog = ((RequestEvent) sipEvent).getDialog();

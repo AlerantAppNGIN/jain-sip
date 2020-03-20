@@ -367,7 +367,7 @@ public class UDPMessageChannel extends MessageChannel implements
             throws Exception {
         this.peerAddress = packet.getAddress();
         int packetLength = packet.getLength();
-        // Read bytes and put it in a eueue.
+        // Read bytes and put it in a right-sized buffer.
         byte[] bytes = packet.getData();
         byte[] msgBytes = new byte[packetLength];
         System.arraycopy(bytes, 0, msgBytes, 0, packetLength);
