@@ -77,11 +77,9 @@ public final class StatusLine extends SIPObject implements SipStatusLine {
             return false;
         if (sl.statusCode != 0) {
             if (matchStatusClass) {
-                int hiscode = sl.statusCode;
-                String codeString = Integer.toString(sl.statusCode);
-                String mycode = Integer.toString(statusCode);
-                if (codeString.charAt(0) != mycode.charAt(0))
-                    return false;
+            	// all status codes are 3 digits long, so simply compare value after division by 100 (e.g. 180 / 100 == 1)
+            	if( sl.statusCode / 100 != statusCode / 100 )
+            		return false;
             } else {
                 if (statusCode != sl.statusCode)
                     return false;
@@ -145,7 +143,7 @@ public final class StatusLine extends SIPObject implements SipStatusLine {
      * @see gov.nist.javax.sip.header.SipStatusLine#setSipVersion(java.lang.String)
      */
     public void setSipVersion(String s) {
-        sipVersion = s;
+        sipVersion = s.intern();
     }
 
     /* (non-Javadoc)
@@ -159,7 +157,7 @@ public final class StatusLine extends SIPObject implements SipStatusLine {
      * @see gov.nist.javax.sip.header.SipStatusLine#setReasonPhrase(java.lang.String)
      */
     public void setReasonPhrase(String reasonPhrase) {
-        this.reasonPhrase = reasonPhrase;
+        this.reasonPhrase = reasonPhrase.intern();
     }
 
     /* (non-Javadoc)

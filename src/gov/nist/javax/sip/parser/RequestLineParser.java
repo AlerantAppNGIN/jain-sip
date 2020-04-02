@@ -47,23 +47,36 @@ public class RequestLineParser extends Parser {
         this.lexer.selectLexer("method_keywordLexer");
     }
 
+    
+    /*
+   
+   A Request-Line contains a method name, a Request-URI, and the
+   protocol version separated by a single space (SP) character.
+
+   The Request-Line ends with CRLF.  No CR or LF are allowed except in
+   the end-of-line CRLF sequence.  No linear whitespace (LWS) is allowed
+   in any of the elements.
+
+         Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
+         
+     */
     public RequestLine parse() throws ParseException {
         if (debug)
             dbg_enter("parse");
         try {
             RequestLine retval = new RequestLine();
             String m = method();
-            lexer.SPorHT();
             retval.setMethod(m);
+            lexer.match(' ');
             this.lexer.selectLexer("sip_urlLexer");
             URLParser urlParser = new URLParser(this.getLexer());
             GenericURI url = urlParser.uriReference(true);
-            lexer.SPorHT();
             retval.setUri(url);
+            lexer.match(' ');
             this.lexer.selectLexer("request_lineLexer");
             String v = sipVersion();
             retval.setSipVersion(v);
-            lexer.SPorHT();
+            lexer.match('\r');
             lexer.match('\n');
             return retval;
         } finally {
@@ -71,26 +84,6 @@ public class RequestLineParser extends Parser {
                 dbg_leave("parse");
         }
     }
-
-            public static void main(String args[]) throws ParseException {
-            String requestLines[] = {
-                "REGISTER sip:192.168.0.68 SIP/2.0\n",
-                "REGISTER sip:company.com SIP/2.0\n",
-                "INVITE sip:3660@166.35.231.140 SIP/2.0\n",
-                "INVITE sip:user@company.com SIP/2.0\n",
-                "REGISTER sip:[2001::1]:5060;transport=tcp SIP/2.0\n", // Added by Daniel J. Martinez Manzano <dani@dif.um.es>
-                "REGISTER sip:[2002:800:700:600:30:4:6:1]:5060;transport=udp SIP/2.0\n", // Added by Daniel J. Martinez Manzano <dani@dif.um.es>
-                "REGISTER sip:[3ffe:800:700::30:4:6:1]:5060;transport=tls SIP/2.0\n", // Added by Daniel J. Martinez Manzano <dani@dif.um.es>
-                "REGISTER sip:[2001:720:1710:0:201:29ff:fe21:f403]:5060;transport=udp SIP/2.0\n",
-                "OPTIONS sip:135.180.130.133 SIP/2.0\n" };
-            for (int i = 0; i < requestLines.length; i++ ) {
-                RequestLineParser rlp =
-                  new RequestLineParser(requestLines[i]);
-                RequestLine rl = rlp.parse();
-                System.out.println("encoded = " + rl.encode());
-            }
-
-        }
 
 }
 /*

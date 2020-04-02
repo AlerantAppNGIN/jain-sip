@@ -47,7 +47,7 @@ public class LexerCore extends StringTokenizer {
     public static final int ID_NO_WHITESPACE = END - 3;
     public static final int ID = END - 1;
     public static final int SAFE = END - 2;
-    // Individial token classes.
+    // Individual token classes.
     public static final int WHITESPACE = END + 1;
     public static final int DIGIT = END + 2;
     public static final int ALPHA = END + 3;
@@ -285,7 +285,7 @@ public class LexerCore extends StringTokenizer {
                 consume(1);
             } else
                 throw new ParseException(
-                    buffer + "\nExpecting  >>>" + ch + "<<< got >>>"
+                    String.valueOf(buffer) + "\nExpecting  >>>" + ch + "<<< got >>>"
                     + next + "<<<", ptr);
         }
         return this.currentMatch;
@@ -397,7 +397,8 @@ public class LexerCore extends StringTokenizer {
                 break;
             }
         }
-        return String.valueOf(buffer, startIdx, ptr - startIdx);
+        // intern all values parsed as tokens (e.g. INVITE, 100rel, etc.) to save memory on immutable duplicates, since char[] is copied to new String instance.
+        return String.valueOf(buffer, startIdx, ptr - startIdx).intern();
     }
 
     public String ttokenNoWhiteSpace() {
@@ -412,7 +413,7 @@ public class LexerCore extends StringTokenizer {
                  consume(1);
             }
         }
-        return String.valueOf(buffer, startIdx, ptr - startIdx);
+        return String.valueOf(buffer, startIdx, ptr - startIdx).intern();
     }
 
     public String ttokenSafe() {
@@ -461,7 +462,7 @@ public class LexerCore extends StringTokenizer {
                 }
             }
         }
-        return String.valueOf(buffer, startIdx, ptr - startIdx);
+        return String.valueOf(buffer, startIdx, ptr - startIdx).intern();
     }
 
     static final char ALPHA_VALID_CHARS = Character.MAX_VALUE;
@@ -499,6 +500,21 @@ public class LexerCore extends StringTokenizer {
             }
         }
     }
+    
+    /** Consume the contents of the buffer as long as it matches the expected String <code>s</code>, throwing an exception if a match does not occur.
+     * @return reference to the input String <code>s</code>
+     *  */
+	public String consumeString(final String s) throws ParseException {
+		final int len = s.length();
+		for (int i = 0; i < len; i++) {
+			if (lookAhead(0) == s.charAt(i)) {
+				consume(1);
+			} else {
+				throw new ParseException(String.valueOf(this.buffer) + " : expected character '" + s.charAt(i) + "' of string \"" + s + "\", got '" + lookAhead(0) + "'", this.ptr);
+			}
+		}
+		return s;
+	}
 
     /** Parse a comment string cursor is at a ". Leave cursor at closing "
     *@return the substring containing the quoted string excluding the
@@ -656,7 +672,39 @@ public class LexerCore extends StringTokenizer {
             return String.valueOf(buffer, startIdx, ptr - startIdx);
         }
     }
-
+    
+    /** Get and consume the next number as a long.
+     */
+    public long numberAsLong() throws ParseException {
+    	long ret = 0;
+        char next = lookAhead(0);
+        // if we don't have a single digit, throw exception 
+        if (!isDigit(next)) {
+            throw new ParseException(
+                String.valueOf(buffer) + ": Unexpected token at " + lookAhead(0),
+                ptr);
+        }
+        // otherwise process all digits
+        do {
+        	ret = ret * 10 + (next - '0');
+        	consume(1);
+        } while(isDigit(next = lookAhead(0)));
+        
+        return ret;
+    }
+    
+    /** Get and consume the next number as an int.
+     */
+    public int numberAsInt() throws ParseException {
+    	long ret = numberAsLong();
+    	if(ret <= Integer.MAX_VALUE)
+    		return (int) ret;
+    	else
+    		throw new ParseException(
+    				buffer + ": value > Integer.MAX_VALUE",
+    				ptr);
+    }
+    
     /** Mark the position for backtracking.
      *@return the current location of the pointer.
      */

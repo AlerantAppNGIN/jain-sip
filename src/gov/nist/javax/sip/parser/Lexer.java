@@ -134,7 +134,7 @@ public class Lexer extends LexerCore {
             int begin = line.indexOf(":");
             headerName = null;
             if (begin >= 1)
-                headerName = line.substring(0, begin).trim();
+                headerName = line.substring(0, begin).trim().intern();
         } catch (IndexOutOfBoundsException e) {
             return null;
         }

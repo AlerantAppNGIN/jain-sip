@@ -48,25 +48,18 @@ public class StatusLineParser extends Parser {
     }
 
     protected int statusCode() throws ParseException {
-        String scode = this.lexer.number();
         if (debug)
             dbg_enter("statusCode");
         try {
-            int retval = Integer.parseInt(scode);
-            return retval;
-        } catch (NumberFormatException ex) {
-            throw new ParseException(
-                lexer.getBuffer() + ":" + ex.getMessage(),
-                lexer.getPtr());
+        	return this.lexer.numberAsInt();
         } finally {
             if (debug)
                 dbg_leave("statusCode");
         }
-
     }
 
     protected String reasonPhrase() throws ParseException {
-        return this.lexer.getRest().trim();
+        return this.lexer.getRest().trim().intern();
     }
 
     public StatusLine parse() throws ParseException {
@@ -90,24 +83,6 @@ public class StatusLineParser extends Parser {
         }
     }
 
-    /**
-        public static void main(String[] args)  throws ParseException {
-            String[] statusLines = {
-             "SIP/2.0 200 OK\n",
-             "BOO 200 OK\n",
-             "SIP/2.0 500 OK bad things happened \n"
-            };
-            for (int i = 0 ; i < statusLines.length; i++) {
-               try {
-               StatusLineParser slp = new StatusLineParser(statusLines[i]);
-               StatusLine sl = slp.parse();
-               System.out.println("encoded = " + sl.encode());
-               } catch (ParseException ex) {
-                System.out.println("error message " + ex.getMessage());
-               }
-            }
-        }
-    */
 }
 /*
  * $Log: not supported by cvs2svn $

@@ -55,7 +55,6 @@ import java.text.ParseException;
  * simpler and quicker.
  */
 
-import javax.xml.bind.DatatypeConverter;
 
 /**
  * Parse SIP message and parts of SIP messages such as URI's etc from memory and
@@ -114,11 +113,10 @@ public class StringMsgParser implements MessageParser {
         int i = 0;
 
         // Squeeze out any leading control character.
-        try {
-            while (msgBuffer[i] < 0x20)
-                i++;
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
+        while (i < msgBuffer.length && msgBuffer[i] < 0x20)
+            i++;
+
+		if (i == msgBuffer.length) {
             // Array contains only control char, return null.
         	if (logger.isLoggingEnabled(StackLogger.TRACE_DEBUG)) {
             	logger.logDebug("handled only control char so returning null");
@@ -131,18 +129,17 @@ public class StringMsgParser implements MessageParser {
         String currentHeader = null;
         boolean isFirstLine = true;
         SIPMessage message = null;
-        do
+        _do_: do
         {
             int lineStart = i;
 
             // Find the length of the line.
-            try {
-                while (msgBuffer[i] != '\r' && msgBuffer[i] != '\n')
-                    i++;
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
+            while (i < msgBuffer.length && msgBuffer[i] != '\r' && msgBuffer[i] != '\n')
+                i++;
+
+			if (i == msgBuffer.length) {
                 // End of the message.
-                break;
+                break _do_;
             }
             int lineLength = i - lineStart;
 
@@ -153,7 +150,7 @@ public class StringMsgParser implements MessageParser {
                 throw new ParseException("Bad message encoding!", 0);
             }
 
-            currentLine = trimEndOfLine(currentLine);
+           	currentLine = trimEndOfLine(currentLine);
 
             if (currentLine.length() == 0) {
                 // Last header line, process the previous buffered header.
@@ -236,7 +233,7 @@ public class StringMsgParser implements MessageParser {
         if (!firstLine.startsWith(SIPConstants.SIP_VERSION_STRING)) {
             message = new SIPRequest();
             try {
-                RequestLine requestLine = new RequestLineParser(firstLine + "\n")
+                RequestLine requestLine = new RequestLineParser(firstLine + "\r\n")
                         .parse();
                 ((SIPRequest) message).setRequestLine(requestLine);
             } catch (ParseException ex) {
@@ -296,7 +293,7 @@ public class StringMsgParser implements MessageParser {
         } catch (ParseException ex) {
             if (parseExceptionListener != null) {
                 String headerName = Lexer.getHeaderName(header);
-                Class headerClass = NameMap.getClassFromName(headerName);
+                Class<?> headerClass = NameMap.getClassFromName(headerName);
                 if (headerClass == null) {
                     headerClass = ExtensionHeaderImpl.class;
 
@@ -422,16 +419,13 @@ public class StringMsgParser implements MessageParser {
     public static SIPHeader parseSIPHeader(String header) throws ParseException {
         int start = 0;
         int end = header.length() - 1;
-        try {
-            // Squeeze out any leading control character.
-            while (header.charAt(start) <= 0x20)
-                start++;
-
-            // Squeeze out any trailing control character.
-            while (header.charAt(end) <= 0x20)
-                end--;
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
+        // Squeeze out any leading control character.
+		while (start < end && header.charAt(start) <= 0x20)
+            start++;
+        // Squeeze out any trailing control character.
+        while (end > start && header.charAt(end) <= 0x20)
+            end--;
+		if (start == end) {
             // Array contains only control char.
             throw new ParseException("Empty header.", 0);
         }

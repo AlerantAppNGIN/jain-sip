@@ -28,6 +28,8 @@ import gov.nist.core.Debug;
 import gov.nist.core.LexerCore;
 import gov.nist.core.ParserCore;
 import gov.nist.core.Token;
+import gov.nist.javax.sip.SIPConstants;
+
 import java.text.ParseException;
 
 /**
@@ -55,15 +57,8 @@ public abstract class Parser extends ParserCore implements TokenTypes {
         if (debug)
             dbg_enter("sipVersion");
         try {
-            Token tok = lexer.match(SIP);
-            if (!tok.getTokenValue().equalsIgnoreCase("SIP"))
-                createParseException("Expecting SIP");
-            lexer.match('/');
-            tok = lexer.match(ID);
-            if (!tok.getTokenValue().equals("2.0"))
-                createParseException("Expecting SIP/2.0");
-
-            return "SIP/2.0";
+        	// this is the only accepted / supported SIP version string
+        	return lexer.consumeString(SIPConstants.SIP_VERSION_STRING);
         } finally {
             if (debug)
                 dbg_leave("sipVersion");
