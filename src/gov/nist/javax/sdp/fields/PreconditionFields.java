@@ -32,6 +32,7 @@ package gov.nist.javax.sdp.fields;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Vector;
 import javax.sdp.SdpException;
 import javax.sdp.SdpParseException;
@@ -125,8 +126,6 @@ public class PreconditionFields implements Serializable
             throw new SdpException("The Precondition Attributes is null");
         else
         {
-            try
-            {
                 /* split the "curr" attribute value into words
                  *      attributes[0] = "qos"
                  *      attributes[1] = status-type   (e2e/local/remote)
@@ -138,28 +137,16 @@ public class PreconditionFields implements Serializable
                  */
                 String[] attributes = precondCurrValue.split(" ");
 
-
-                // which is this length?! of the string or the []?
-                /*
                 if (attributes.length < 3)
                 {
                     throw new SdpException
                         ("The Precondition \"curr\" attribute value mal-formed (<3words)");
-                }*/
-
+                }
                 setPreconditionCurr(attributes[1],      // status-type
                                     attributes[2]       // direction-tag
                                 );
-            }
-            catch (ArrayIndexOutOfBoundsException ex)
-            {
-                throw new SdpException
-                    ("Error spliting the \"curr\" attribute into words", ex);
-            }
         }
     }
-
-
 
 
 
@@ -257,28 +244,17 @@ public class PreconditionFields implements Serializable
              *      \s -> a whitespace character [ \t\n\x0B\f\r]
              *      \b -> a word boundary
              */
-            try
-            {
-                String[] attributes = precondDesValue.split(" ");
+            
+            String[] attributes = precondDesValue.split(" ");
 
-                // which is this length?! of the string or the []?
-                /*
-                if (attributes.length < 4)
-                {
-                    throw new SdpException
-                        ("The Precondition \"des\" attribute value mal-formed (<4words)");
-                }*/
+            if (attributes.length < 4)
+                throw new SdpException("The Precondition \"des\" attribute value mal-formed (<4words)");
 
-                setPreconditionDes( attributes[1],      // strength-tag
-                                    attributes[2],      // status-type
-                                    attributes[3]       // direction-tag
-                                );
-            }
-            catch (ArrayIndexOutOfBoundsException ex)
-            {
-                throw new SdpException
-                    ("Error spliting the \"des\" attribute into words", ex);
-            }
+            setPreconditionDes( attributes[1],      // strength-tag
+                                attributes[2],      // status-type
+                                attributes[3]       // direction-tag
+                            );
+            
         }
     }
 
@@ -384,20 +360,14 @@ public class PreconditionFields implements Serializable
              *      attributes[1] = status-type   (e2e/local/remote)
              *      attributes[2] = direction-tag (none/send/recv/sendrecv)
              */
-            try
-            {
-                String[] attributes = precondConfValue.split(" ");
+            String[] attributes = precondConfValue.split(" ");
+			if (attributes.length < 3)
+            	throw new SdpException("Error spliting the \"conf\" attribute into words");
 
-                setPreconditionConfirmStatus(
-                                    attributes[1],      // status-type
-                                    attributes[2]       // direction-tag
-                                );
-            }
-            catch (ArrayIndexOutOfBoundsException ex)
-            {
-                throw new SdpException
-                    ("Error spliting the \"conf\" attribute into words", ex);
-            }
+            setPreconditionConfirmStatus(
+                                attributes[1],      // status-type
+                                attributes[2]       // direction-tag
+                            );
         }
     }
 
