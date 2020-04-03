@@ -50,10 +50,8 @@ public interface SIPClientTransaction extends ClientTransactionExt, SIPTransacti
    * also be passed onto the TU.
    * 
    * @param transactionResponse Response to process.
-   * @param sourceChannel Channel that received this message.
    */
   public abstract void processResponse(SIPResponse transactionResponse,
-                                       MessageChannel sourceChannel,
                                        SIPDialog dialog);
 
   /*
@@ -140,10 +138,9 @@ public interface SIPClientTransaction extends ClientTransactionExt, SIPTransacti
   /*
    * (non-Javadoc)
    * 
-   * @see gov.nist.javax.sip.stack.ServerResponseInterface#processResponse(gov.nist.javax.sip.message.SIPResponse,
-   *      gov.nist.javax.sip.stack.MessageChannel)
+   * @see gov.nist.javax.sip.stack.ServerResponseInterface#processResponse(gov.nist.javax.sip.message.SIPResponse)
    */
-  public abstract void processResponse(SIPResponse sipResponse, MessageChannel incomingChannel);
+  public abstract void processResponse(SIPResponse sipResponse);
 
   /*
    * (non-Javadoc)

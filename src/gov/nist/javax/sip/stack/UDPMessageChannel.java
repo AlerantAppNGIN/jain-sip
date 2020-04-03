@@ -103,19 +103,19 @@ public class UDPMessageChannel extends MessageChannel implements
     /**
      * SIP Stack structure for this channel.
      */
-    protected SIPTransactionStack sipStack;
+    protected final SIPTransactionStack sipStack;
 
     /**
      * The parser we are using for messages received from this channel.
      */
-    protected MessageParser myParser;
+    protected final MessageParser myParser;
 
     /**
      * Where we got the stuff from
      */
     private InetAddress peerAddress;
 
-    private String myAddress;
+    private final String myAddress;
 
     private int peerPacketSourcePort;
 
@@ -131,7 +131,7 @@ public class UDPMessageChannel extends MessageChannel implements
      */
     private String peerProtocol;
 
-    protected int myPort;
+    protected final int myPort;
 
     private DatagramPacket incomingPacket;
 
@@ -565,7 +565,7 @@ public class UDPMessageChannel extends MessageChannel implements
     }
 
     /**
-     * Actually proces the parsed message.
+     * Actually process the parsed message.
      *
      * @param sipMessage
      */
@@ -612,7 +612,7 @@ public class UDPMessageChannel extends MessageChannel implements
                         "About to process " + sipRequest.getFirstLine() + "/"
                                 + sipServerRequest);
             try {
-                sipServerRequest.processRequest(sipRequest, this);
+                sipServerRequest.processRequest(sipRequest);
             } finally {
                 if (sipServerRequest instanceof SIPTransaction) {
                     SIPServerTransaction sipServerTx = (SIPServerTransaction) sipServerRequest;
@@ -663,7 +663,7 @@ public class UDPMessageChannel extends MessageChannel implements
                         return;
                     }
 
-                    sipServerResponse.processResponse(sipResponse, this);
+                    sipServerResponse.processResponse(sipResponse);
                 } finally {
                     if (sipServerResponse instanceof SIPTransaction
                             && !((SIPTransaction) sipServerResponse)
@@ -1115,4 +1115,14 @@ public class UDPMessageChannel extends MessageChannel implements
         }
     }
 
+    @Override
+    public SIPClientTransaction getEncapsulatedClientTransaction() {
+    	throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void setEncapsulatedClientTransaction(SIPClientTransaction transaction) {
+    	// don't store it
+    }
+    
 }

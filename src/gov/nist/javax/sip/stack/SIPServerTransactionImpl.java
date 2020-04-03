@@ -741,7 +741,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
      * @see gov.nist.javax.sip.stack.SIPServerTransaction#processRequest(gov.nist.javax.sip.message.SIPRequest, gov.nist.javax.sip.stack.MessageChannel)
      */
     @Override
-    public void processRequest(SIPRequest transactionRequest, MessageChannel sourceChannel) {
+    public void processRequest(SIPRequest transactionRequest) {
         boolean toTu = false;
 
         // Can only process a single request directed to the
@@ -798,7 +798,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                 if (sipStack.isNon2XXAckPassedToListener()) {
                     // This is useful for test applications that want to see
                     // all messages.
-                    requestOf.processRequest(transactionRequest, encapsulatedChannel);
+                    requestOf.processRequest(transactionRequest);
                 } else {
                     // According to RFC3261 Application should not Ack in
                     // CONFIRMED state
@@ -827,7 +827,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                     // This is passed up to the TU to suppress
                     // retransmission of OK
                     if (requestOf != null)
-                        requestOf.processRequest(transactionRequest, encapsulatedChannel);
+                        requestOf.processRequest(transactionRequest);
                     else
                         this.semRelease();
 		} else {
@@ -848,12 +848,12 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                 if (getMethod().equals(transactionRequest.getMethod())) {
                     // Only send original request to TU once!
                     if (toTu) {
-                        requestOf.processRequest(transactionRequest, encapsulatedChannel);
+                        requestOf.processRequest(transactionRequest);
                     } else
                         this.semRelease();
                 } else {
                     if (requestOf != null)
-                        requestOf.processRequest(transactionRequest, encapsulatedChannel);
+                        requestOf.processRequest(transactionRequest);
                     else
                         this.semRelease();
                 }
@@ -871,7 +871,7 @@ public class SIPServerTransactionImpl extends SIPTransactionImpl implements SIPS
                             thisDialog.ackReceived(transactionRequest.getCSeq().getSeqNumber());
                             thisDialog.ackProcessed = true;
                         }
-                        requestOf.processRequest(transactionRequest, encapsulatedChannel);
+                        requestOf.processRequest(transactionRequest);
                     } else {
                         this.semRelease();
                     }

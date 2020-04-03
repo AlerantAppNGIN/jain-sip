@@ -48,15 +48,11 @@ import gov.nist.javax.sip.message.*;
 public interface ServerRequestInterface {
 
     /**
-     * Process the message.  This incorporates a feature request
-     * by Salvador Rey Calatayud <salreyca@TELECO.UPV.ES>
+     * Process the message.
      * @param sipRequest is the incoming SIP Request.
-     * @param  incomingChannel is the incoming message channel (parameter
-     * added in response to a request by Salvador Rey Calatayud.)
      */
     public void processRequest(
-        SIPRequest sipRequest,
-        MessageChannel incomingChannel);
+        SIPRequest sipRequest);
 
 
 }

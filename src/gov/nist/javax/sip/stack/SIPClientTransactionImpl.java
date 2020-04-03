@@ -514,7 +514,6 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
    */
   @Override
   public synchronized void processResponse(SIPResponse transactionResponse,
-                                           MessageChannel sourceChannel,
                                            SIPDialog dialog)
   {
 
@@ -550,9 +549,9 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
 
     try {
       if (isInviteTransaction())
-        inviteClientTransaction(transactionResponse, sourceChannel, dialog);
+        inviteClientTransaction(transactionResponse, dialog);
       else
-        nonInviteClientTransaction(transactionResponse, sourceChannel, dialog);
+        nonInviteClientTransaction(transactionResponse, dialog);
     } catch (IOException ex) {
       if (logger.isLoggingEnabled())
         logger.logException(ex);
@@ -622,7 +621,6 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
    * @param sourceChannel - source channel on which the response was received.
    */
   private void nonInviteClientTransaction(SIPResponse transactionResponse,
-                                          MessageChannel sourceChannel,
                                           SIPDialog sipDialog) throws IOException
   {
     int statusCode = transactionResponse.getStatusCode();
@@ -634,7 +632,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
         // According to RFC, the TU has to be informed on
         // this transition.
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, sipDialog);
+          respondTo.processResponse(transactionResponse, sipDialog);
         } else {
           this.semRelease();
         }
@@ -647,7 +645,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
         }
         // Send the response up to the TU.
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, sipDialog);
+          respondTo.processResponse(transactionResponse, sipDialog);
         } else {
           this.semRelease();
         }
@@ -659,7 +657,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
     } else if (TransactionState._PROCEEDING == this.getInternalState()) {
       if (statusCode / 100 == 1) {
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, sipDialog);
+          respondTo.processResponse(transactionResponse, sipDialog);
         } else {
           this.semRelease();
         }
@@ -673,7 +671,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
           this.setState(TransactionState._TERMINATED);
         }
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, sipDialog);
+          respondTo.processResponse(transactionResponse, sipDialog);
         } else {
           this.semRelease();
         }
@@ -791,7 +789,6 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
    */
 
   private void inviteClientTransaction(SIPResponse transactionResponse,
-                                       MessageChannel sourceChannel,
                                        SIPDialog dialog) throws IOException
   {
     int statusCode = transactionResponse.getStatusCode();
@@ -843,7 +840,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
         if (respondTo != null) {
           if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG))
             logger.logDebug("passing 2xx response up to the application");
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         } else {
           this.semRelease();
           return;
@@ -858,7 +855,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
       	if (respondTo != null) {
       		if (logger.isLoggingEnabled(LogWriter.TRACE_DEBUG))
                   logger.logDebug("passing 2xx response up to the application");
-            respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+            respondTo.processResponse(transactionResponse, dialog);
       	} else {
             this.semRelease();
             return;
@@ -879,7 +876,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
 
         // 200 responses are always seen by TU.
         if (respondTo != null)
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         else {
           this.semRelease();
         }
@@ -890,7 +887,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
         this.setState(TransactionState._PROCEEDING);
 
         if (respondTo != null)
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         else {
           this.semRelease();
         }
@@ -925,7 +922,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
           this.setState(TransactionState._TERMINATED);
         }
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         } else {
           this.semRelease();
         }
@@ -934,14 +931,14 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
     } else if (TransactionState._PROCEEDING == this.getInternalState()) {
       if (statusCode / 100 == 1) {
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         } else {
           this.semRelease();
         }
       } else if (statusCode / 100 == 2) {
         this.setState(TransactionState._TERMINATED);
         if (respondTo != null) {
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         } else {
           this.semRelease();
         }
@@ -968,7 +965,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
 
         // Pass up to the TU for processing.
         if (respondTo != null)
-          respondTo.processResponse(transactionResponse, encapsulatedChannel, dialog);
+          respondTo.processResponse(transactionResponse, dialog);
         else {
           this.semRelease();
         }
@@ -1536,11 +1533,10 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
    * gov.nist.javax.sip.stack.MessageChannel)
    */
   /**
-   * @see gov.nist.javax.sip.stack.SIPClientTransaction#processResponse(gov.nist.javax.sip.message.SIPResponse,
-   *      gov.nist.javax.sip.stack.MessageChannel)
+   * @see gov.nist.javax.sip.stack.SIPClientTransaction#processResponse(gov.nist.javax.sip.message.SIPResponse)
    */
   @Override
-  public void processResponse(SIPResponse sipResponse, MessageChannel incomingChannel) {
+  public void processResponse(SIPResponse sipResponse) {
 
     int code = sipResponse.getStatusCode();
     boolean isRetransmission = !responsesReceived.add(Integer.valueOf(code));
@@ -1649,7 +1645,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
         dialog.setLastResponse(this, sipResponse);
       }
     }
-    this.processResponse(sipResponse, incomingChannel, dialog);
+    this.processResponse(sipResponse, dialog);
   }
 
   /*

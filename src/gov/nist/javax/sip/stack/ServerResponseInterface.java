@@ -29,13 +29,8 @@
 package gov.nist.javax.sip.stack;
 import gov.nist.javax.sip.message.*;
 
-/*
- *  Salvador Rey Calatayud suggested adding a parameter to the processRequest/processResponse
- *  methods.
- */
-
 /**
- * An interface for a genereic message processor for SIP Response messages.
+ * An interface for a generic message processor for SIP Response messages.
  * This is implemented by the application. The stack calls the message
  * factory with a pointer to the parsed structure to create one of these
  * and then calls processResponse on the newly created SIPServerResponse
@@ -52,13 +47,11 @@ import gov.nist.javax.sip.message.*;
 public interface ServerResponseInterface {
     /**
      * Process the Response.
-     * @param  incomingChannel is the incoming message channel
-     * @param sipResponse is the responseto process.
+     * @param sipResponse is the response to process.
      * @param sipDialog -- dialog for this response
      */
     public void processResponse(
         SIPResponse sipResponse,
-        MessageChannel incomingChannel,
         SIPDialog sipDialog);
 
 
@@ -67,11 +60,9 @@ public interface ServerResponseInterface {
     /**
      * This method is called prior to dialog assignment.
      * @param sipResponse
-     * @param incomingChannel
      */
     public void processResponse(
-            SIPResponse sipResponse,
-            MessageChannel incomingChannel);
+            SIPResponse sipResponse);
 
 
 

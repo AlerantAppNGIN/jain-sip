@@ -58,9 +58,8 @@ public interface SIPServerTransaction extends SIPTransaction, ServerTransaction,
    * also be passed onto the TU.
    *
    * @param transactionRequest Request to process.
-   * @param sourceChannel Channel that received this message.
    */
-  public  void processRequest(SIPRequest transactionRequest, MessageChannel sourceChannel);
+  public  void processRequest(SIPRequest transactionRequest);
 
   /**
    * Send a response message through this transaction and onto the client. The response drives

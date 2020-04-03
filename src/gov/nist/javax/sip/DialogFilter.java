@@ -44,7 +44,6 @@ import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
-import gov.nist.javax.sip.stack.MessageChannel;
 import gov.nist.javax.sip.stack.SIPClientTransaction;
 import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
@@ -323,8 +322,7 @@ class DialogFilter implements ServerRequestInterface, ServerResponseInterface {
      * @exception SIPServerException
      *                is thrown when there is an error processing the request.
      */
-    public void processRequest(SIPRequest sipRequest,
-            MessageChannel incomingMessageChannel) {
+    public void processRequest(SIPRequest sipRequest) {
         // Generate the wrapper JAIN-SIP object.
         if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)
                 && listeningPoint != null)
@@ -1337,8 +1335,7 @@ class DialogFilter implements ServerRequestInterface, ServerResponseInterface {
      * @param incomingMessageChannel
      *            -- message channel on which the response is received.
      */
-    public void processResponse(SIPResponse response,
-            MessageChannel incomingMessageChannel, SIPDialog dialog) {
+    public void processResponse(SIPResponse response, SIPDialog dialog) {
         if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
             logger.logDebug(
                     "PROCESSING INCOMING RESPONSE"
@@ -1380,7 +1377,6 @@ class DialogFilter implements ServerRequestInterface, ServerResponseInterface {
         }
 
         SIPClientTransaction transaction = (SIPClientTransaction) this.transactionChannel;
-        SIPTransactionStack sipStackImpl = sipProvider.sipStack;
 
         if (logger.isLoggingEnabled(LogLevels.TRACE_DEBUG)) {
             logger.logDebug(
@@ -1538,8 +1534,7 @@ class DialogFilter implements ServerRequestInterface, ServerResponseInterface {
      * nist.javax.sip.message.SIPResponse,
      * gov.nist.javax.sip.stack.MessageChannel)
      */
-    public void processResponse(SIPResponse sipResponse,
-            MessageChannel incomingChannel) {
+    public void processResponse(SIPResponse sipResponse) {
         String dialogID = sipResponse.getDialogId(false);
         SIPDialog sipDialog = this.sipStack.getDialog(dialogID);
 

@@ -470,7 +470,7 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
                 
                 if (sipServerRequest != null) {
                     try {
-                        sipServerRequest.processRequest(sipRequest, this);
+                        sipServerRequest.processRequest(sipRequest);
                     } finally {
                         if (sipServerRequest instanceof SIPTransaction) {
                             SIPServerTransaction sipServerTx = (SIPServerTransaction) sipServerRequest;
@@ -544,7 +544,7 @@ public abstract class ConnectionOrientedMessageChannel extends MessageChannel im
                             return;
                         }
 
-                        sipServerResponse.processResponse(sipResponse, this);
+                        sipServerResponse.processResponse(sipResponse);
                     } finally {
                         if (sipServerResponse instanceof SIPTransaction
                                 && !((SIPTransaction) sipServerResponse)
