@@ -60,7 +60,7 @@ public class RSeq extends SIPHeader implements javax.sip.header.RSeqHeader {
      * A.K.A headerValue.
      */
     public StringBuilder encodeBody(StringBuilder retval) {
-        return retval.append(Long.toString(this.sequenceNumber));
+        return retval.append(this.sequenceNumber);
     }
 
     public long getSeqNumber() {
