@@ -167,9 +167,9 @@ public class HeaderParser extends Parser {
      * @throws ParseException if there was an error parsing.
      */
     public SIPHeader parse() throws ParseException {
-        String name = lexer.getNextToken(':');
+        String name = lexer.getNextToken(':').intern();
         lexer.consume(1);
-        String body = lexer.getLine().trim();
+        String body = lexer.getLine().trim().intern();
         // we dont set any fields because the header is
         // ok
         ExtensionHeaderImpl retval = new ExtensionHeaderImpl(name);

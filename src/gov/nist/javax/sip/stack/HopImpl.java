@@ -72,7 +72,7 @@ public final class HopImpl extends Object implements javax.sip.address.Hop, Seri
      * @param trans transport
      */
     public HopImpl(String hostName, int portNumber, String trans) {
-        host = hostName;
+        host = hostName.intern();
 
         // Added by Daniel J. Martinez Manzano <dani@dif.um.es>
         // for correct management of IPv6 addresses.
@@ -81,7 +81,7 @@ public final class HopImpl extends Object implements javax.sip.address.Hop, Seri
                 host = "[" + host + "]";
 
         port = portNumber;
-        transport = trans;
+        transport = trans.intern();
     }
 
 
@@ -132,8 +132,8 @@ public final class HopImpl extends Object implements javax.sip.address.Hop, Seri
             throw new IllegalArgumentException("no host!");
 
         // normalize
-        this.host = this.host.trim();
-        this.transport = this.transport.trim();
+        this.host = this.host.trim().intern();
+        this.transport = this.transport.trim().intern();
 
         if ((brack>0) && host.charAt(0)!='[') {
             throw new IllegalArgumentException("Bad IPv6 reference spec");

@@ -137,7 +137,7 @@ public class Host extends GenericObject {
             return false;
         }
         Host otherHost = (Host) obj;
-        return otherHost.hostname.equals(hostname);
+        return otherHost.hostname.equalsIgnoreCase(hostname);
 
     }
 
@@ -211,26 +211,25 @@ public class Host extends GenericObject {
 
         // Null check bug fix sent in by jpaulo@ipb.pt
         if (host != null){
-            hostname = host.trim();
-
-            //if this is an FQDN, make it lowercase to simplify processing
-            if(addressType == HOSTNAME)
-                hostname = hostname.toLowerCase();
+            host = host.trim();
 
             //remove address scope zones if this is an IPv6 address as they
             //are not allowed by the RFC
             int zoneStart = -1;
             if(addressType == IPV6ADDRESS
                 && stripAddressScopeZones
-                && (zoneStart = hostname.indexOf('%'))!= -1){
+                && (zoneStart = host.indexOf('%'))!= -1){
 
-                hostname = hostname.substring(0, zoneStart);
+                host = host.substring(0, zoneStart);
 
                 //if the above was an IPv6 literal, then we would need to
                 //restore the closing bracket
-                if( hostname.startsWith("[") && !hostname.endsWith("]"))
-                    hostname += ']';
+                if( host.startsWith("[") && !host.endsWith("]"))
+                	host += ']';
             }
+            hostname = host.intern();
+        } else {
+        	hostname = null;
         }
     }
 

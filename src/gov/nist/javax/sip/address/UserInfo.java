@@ -149,7 +149,7 @@ public final class UserInfo extends NetObject {
      */
     public void setUser(String user) {
     	if(user == null || "".equals(user)) return;
-        this.user = user;
+        this.user = user.intern();
         // BUG Fix submitted by Lamine Brahimi
         // add this (taken form sip_messageParser)
         // otherwise comparison of two SipUrl will fail because this
@@ -167,7 +167,7 @@ public final class UserInfo extends NetObject {
      * @param p String to set
      */
     public void setPassword(String p) {
-        password = p;
+        password = p.intern();
     }
 
     /**
