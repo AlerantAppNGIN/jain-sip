@@ -119,6 +119,9 @@ public class ScheduledExecutorSipTimer implements SipTimer {
 	public void start(SipStackImpl sipStack, Properties configurationProperties) {
 		sipStackImpl= sipStack;
 		// TODO have a param in the stack properties to set the number of thread for the timer executor
+		int cpus = Runtime.getRuntime().availableProcessors();
+		threadPoolExecutor.setCorePoolSize(cpus);
+		threadPoolExecutor.setMaximumPoolSize(cpus);
 		threadPoolExecutor.prestartAllCoreThreads();
 		schedulePurgeTaskIfNeeded();
 		if(logger.isLoggingEnabled(StackLogger.TRACE_INFO)) {
@@ -141,7 +144,7 @@ public class ScheduledExecutorSipTimer implements SipTimer {
 		return cancelled;
 	}
 
-	private class ScheduledSipTimerTask implements Runnable {
+	private static class ScheduledSipTimerTask implements Runnable {
 		private SIPStackTimerTask task;
 
 		public ScheduledSipTimerTask(SIPStackTimerTask task) {
@@ -166,7 +169,7 @@ public class ScheduledExecutorSipTimer implements SipTimer {
 	 * @see gov.nist.javax.sip.stack.timers.SipTimer#isStarted()
 	 */
 	public boolean isStarted() {
-		return threadPoolExecutor.isTerminated();
+		return !threadPoolExecutor.isShutdown();
 	}
 	
 }
