@@ -200,6 +200,11 @@ public abstract class SIPTransactionImpl implements SIPTransaction {
 		return creationTime;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + "-" + method;
+	}
+	
     /**
      * @see gov.nist.javax.sip.stack.SIPTransaction#getBranchId()
      */
