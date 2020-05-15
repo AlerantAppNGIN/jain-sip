@@ -346,9 +346,9 @@ public abstract class SIPTransactionStack implements
     
     //http://java.net/jira/browse/JSIP-420
     // Max time that an INVITE tx is allowed to live in the stack. Default is infinity
-    protected int maxTxLifetimeInvite;
+    protected volatile int maxTxLifetimeInvite;
     // Max time that a Non INVITE tx is allowed to live in the stack. Default is infinity
-    protected int maxTxLifetimeNonInvite;
+    protected volatile int maxTxLifetimeNonInvite;
 
     // A flag that indicates whether or not RFC 2543 clients are fully
     // supported.
