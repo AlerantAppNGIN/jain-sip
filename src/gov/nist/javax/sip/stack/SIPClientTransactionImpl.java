@@ -54,6 +54,7 @@ import gov.nist.javax.sip.stack.IllegalTransactionStateException.Reason;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -67,6 +68,7 @@ import javax.sip.TimeoutEvent;
 import javax.sip.TransactionState;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.CallIdHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.RouteHeader;
@@ -1978,10 +1980,7 @@ public class SIPClientTransactionImpl extends SIPTransactionImpl implements SIPC
    */
   @Override
   public String getOriginalRequestCallId() {
-    if (originalRequest == null) {
-      return originalRequestCallId;
-    }
-    return originalRequest.getCallId().getCallId();
+	return Optional.ofNullable(originalRequest).map(SIPMessage::getCallId).map(CallIdHeader::getCallId).orElse(originalRequestCallId);
   }
 
   /**
