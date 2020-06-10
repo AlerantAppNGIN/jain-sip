@@ -485,11 +485,10 @@ public class UDPMessageChannel extends MessageChannel implements
         // Check for the required headers.
         if (sipMessage.getFrom() == null || sipMessage.getTo() == null
                 || sipMessage.getCallId() == null
-                || sipMessage.getCSeq() == null || topMostVia == null) {
+                || sipMessage.getCSeq() == null || topMostVia == null || topMostVia.getBranch() == null) {
             String badmsg = new String(msgBytes);
             if (logger.isLoggingEnabled()) {
-                logger
-                        .logError("bad message " + badmsg);
+                logger.logError("bad message " + badmsg);
                 logger.logError(
                         ">>> Dropped Bad Msg " + "From = "
                                 + sipMessage.getFrom() + "To = "
