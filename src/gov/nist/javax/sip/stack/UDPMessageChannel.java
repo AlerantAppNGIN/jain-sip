@@ -58,6 +58,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -332,8 +333,14 @@ public class UDPMessageChannel extends MessageChannel implements
                 processIncomingDataPacket(incomingPacket, receptionTime);
             } catch (Exception e) {
 
-                logger.logError(
-                        "Error while processing incoming UDP packet" + Arrays.toString(incomingPacket.getData()), e);
+            	// first check if we can log the packet properly in human-readable format
+            	String packetString;
+            	try {
+            		packetString = new String(incomingPacket.getData(), incomingPacket.getOffset(), incomingPacket.getLength(), StandardCharsets.US_ASCII);
+            	} catch(Exception _ignored) { // encoding exception, etc.
+            		packetString = Arrays.toString(incomingPacket.getData());
+            	}
+                logger.logError("Error while processing incoming UDP packet:\n" + packetString , e);
             }
 
             if (sipStack.threadPoolSize == -1) {
